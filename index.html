@@ -169,12 +169,12 @@
     }
 
     .tabs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px;
       margin-bottom: 12px; border-radius: 14px; padding: 4px;
     }
     .tab {
       background: transparent; color: var(--muted); border: none;
-      border-radius: 10px; padding: 10px 4px; font-size: 0.78rem; font-weight: 700;
+      border-radius: 10px; padding: 10px 2px; font-size: 0.72rem; font-weight: 700;
       transition: all 0.25s ease;
     }
     .tab.active {
@@ -293,7 +293,6 @@
     .alert-banner.show100 { display: block; background: #7f1d1d; color: #fff; border: 2px solid #ef4444; animation: flashText 0.5s ease infinite; }
     @keyframes flashText { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-    /* ===== TOTALS with glowing fills for sodium & cholesterol ===== */
     .totals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
     .total-box {
       border-radius: 14px; padding: 10px 6px; text-align: center;
@@ -311,7 +310,6 @@
     .total-box.na::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
     .total-box.chol::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
-    /* Filling background inside sodium / cholesterol boxes */
     .total-fill {
       position: absolute;
       left: 0; bottom: 0;
@@ -370,7 +368,6 @@
     .total-box.chol .total-value { color: #fbbf24; }
     .total-unit { font-size: 0.62rem; color: var(--muted); }
 
-    /* Glowing borders when near/over the limit */
     .total-box.na.near-limit {
       border-color: rgba(245,158,11,0.7);
       box-shadow: 0 0 16px rgba(245,158,11,0.5), 0 8px 32px rgba(0,0,0,0.25);
@@ -394,7 +391,7 @@
       50% { transform: scale(1.02); }
     }
 
-    .add-card, .profile-card, .chart-card, .hist-card, .exercise-card, .timer-card {
+    .add-card, .profile-card, .chart-card, .hist-card, .exercise-card, .timer-card, .guide-card {
       border-radius: 16px; padding: 14px; margin-bottom: 12px;
     }
     .form-group { margin-bottom: 10px; }
@@ -674,7 +671,7 @@
     .burn-box .bv { font-size: 1.1rem; font-weight: 800; color: #4ade80; }
     .burn-box .bu { font-size: 0.6rem; color: var(--muted); }
 
-    /* ===== EXERCISE LIST — FIXED FILL ===== */
+    /* ===== EXERCISE LIST ===== */
     .exercise-list { max-height: 45vh; overflow-y: auto; }
     .exercise-item {
       display: grid; grid-template-columns: 2fr 1.2fr 0.9fr 0.7fr; gap: 4px;
@@ -689,7 +686,6 @@
     .exercise-item:nth-child(even) { background: rgba(30,48,82,0.5); }
     .exercise-item:nth-child(odd) { background: rgba(20,35,65,0.5); }
 
-    /* The fill is the ONLY visible colored background */
     .exercise-fill {
       position: absolute;
       top: 0; left: 0; bottom: 0;
@@ -720,7 +716,6 @@
                   0 0 12px rgba(251,191,36,0.5);
     }
 
-    /* Content sits above the fill */
     .exercise-item > *:not(.exercise-fill) {
       position: relative;
       z-index: 2;
@@ -784,6 +779,201 @@
     }
     .timer-display.running { animation: pulseText 1s infinite; }
 
+    /* ===== GUIDE TAB ===== */
+    .guide-card {
+      border-radius: 16px; padding: 16px; margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .guide-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .guide-card.step-1::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .guide-card.step-2::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .guide-card.step-3::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .guide-card.step-4::before { background: linear-gradient(90deg, #a855f7, #c084fc); }
+    .guide-card.step-5::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+    .guide-card.step-6::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .guide-card.step-7::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+
+    .guide-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .guide-number {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #052e16;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .step-1 .guide-number { background: linear-gradient(135deg, #22c55e, #4ade80); }
+    .step-2 .guide-number { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: #fff; }
+    .step-3 .guide-number { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .step-4 .guide-number { background: linear-gradient(135deg, #a855f7, #c084fc); color: #fff; }
+    .step-5 .guide-number { background: linear-gradient(135deg, #ec4899, #f472b6); color: #fff; }
+    .step-6 .guide-number { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+    .step-7 .guide-number { background: linear-gradient(135deg, #f97316, #fb923c); color: #fff; }
+
+    .guide-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      flex: 1;
+    }
+    .guide-title .guide-emoji { font-size: 1.4rem; margin-right: 4px; }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .guide-step .arrow {
+      color: #4ade80;
+      font-weight: 900;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .guide-step .step-text strong { color: #4ade80; }
+
+    /* Mockups inside guide */
+    .guide-mockup {
+      background: rgba(10,20,40,0.7);
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .mock-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mock-label {
+      background: rgba(58,80,128,0.4);
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 55px;
+      text-align: center;
+    }
+    .mock-input {
+      flex: 1;
+      background: rgba(15,30,61,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      color: #4ade80;
+    }
+    .mock-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.65rem;
+      text-align: center;
+    }
+    .mock-btn.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+    .mock-btn.amber { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1a0a00; }
+    .mock-btn.purple { background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; }
+
+    .mock-bar-track {
+      width: 100%;
+      height: 14px;
+      background: rgba(10,20,40,0.9);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      margin-top: 3px;
+    }
+    .mock-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #ec4899);
+    }
+    .mock-bar-fill.warm {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f97316);
+    }
+    .mock-bar-fill.red {
+      background: linear-gradient(90deg, #dc2626, #ef4444, #f97316);
+    }
+    .mock-bar-fill.gold {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b, #ef4444, #ec4899);
+    }
+
+    .guide-tip {
+      background: rgba(34,197,94,0.12);
+      border-left: 3px solid #22c55e;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      color: #86efac;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .guide-tip strong { color: #4ade80; }
+    .guide-tip.warn { background: rgba(245,158,11,0.12); border-left-color: #f59e0b; color: #fcd34d; }
+    .guide-tip.warn strong { color: #fbbf24; }
+    .guide-tip.danger { background: rgba(239,68,68,0.12); border-left-color: #ef4444; color: #fca5a5; }
+    .guide-tip.danger strong { color: #f87171; }
+
+    /* Color legend */
+    .color-legend {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .color-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      padding: 6px;
+      background: rgba(10,20,40,0.5);
+      border-radius: 8px;
+    }
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .swatch-green { background: linear-gradient(135deg, #22c55e, #4ade80); box-shadow: 0 0 8px rgba(34,197,94,0.6); }
+    .swatch-amber { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 0 8px rgba(245,158,11,0.6); }
+    .swatch-red { background: linear-gradient(135deg, #dc2626, #ef4444); box-shadow: 0 0 8px rgba(220,38,38,0.6); }
+    .swatch-gold { background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899); box-shadow: 0 0 8px rgba(251,191,36,0.8); }
+
     /* ===== LANDSCAPE ===== */
     @media (orientation: landscape) and (min-width: 560px) {
       body { padding: 12px; padding-bottom: 30px; font-size: 15px; }
@@ -811,7 +1001,7 @@
       .total-unit { font-size: 0.75rem; }
 
       .add-card, .profile-card, .chart-card, .hist-card,
-      .exercise-card, .timer-card { padding: 16px 18px; margin-bottom: 12px; }
+      .exercise-card, .timer-card, .guide-card { padding: 16px 18px; margin-bottom: 12px; }
       .form-group { margin-bottom: 10px; }
       label { font-size: 0.72rem; margin-bottom: 5px; }
       input, select { padding: 11px 13px; font-size: 0.95rem; }
@@ -844,6 +1034,10 @@
       .burn-bar-header .bb-value { font-size: 1.8rem; }
       .burn-bar-pct { font-size: 1rem; }
       .manual-active-row { grid-template-columns: 1fr 1fr 1fr; }
+
+      /* Guide tab landscape: 2-column grid */
+      .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .color-legend { grid-template-columns: repeat(4, 1fr); }
     }
 
     @media (min-width: 1200px) {
@@ -860,6 +1054,7 @@
       .burn-bar-track { height: 56px; }
       .burn-bar-header .bb-value { font-size: 2.1rem; }
       .burn-bar-pct { font-size: 1.1rem; }
+      .guide-grid { grid-template-columns: 1fr 1fr 1fr; }
     }
 
     @media print {
@@ -894,7 +1089,7 @@
   <div class="container">
     <header>
       <h1>🍎 Calorie Tracker</h1>
-      <p class="subtitle">Goals • Alarms • Charts • Exercise</p>
+      <p class="subtitle">Goals • Alarms • Charts • Exercise • Guide</p>
     </header>
 
     <div class="tabs">
@@ -902,6 +1097,7 @@
       <button class="tab" data-tab="move">Move</button>
       <button class="tab" data-tab="goal">Goal</button>
       <button class="tab" data-tab="chart">Chart</button>
+      <button class="tab" data-tab="guide">Guide</button>
     </div>
 
     <!-- ========== TRACK PANEL ========== -->
@@ -1166,6 +1362,316 @@
         <p class="note" style="margin-top:6px">Green bars = food intake · Blue bars = total burn (timer + manual)</p>
       </div>
     </div>
+
+    <!-- ========== GUIDE PANEL ========== -->
+    <div class="panel" id="panel-guide">
+      <div style="text-align:center;margin-bottom:12px">
+        <h2 style="font-size:1.15rem;font-weight:800;background:linear-gradient(90deg,#22c55e,#3b82f6,#ec4899);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerText 4s linear infinite">
+          📖 How to Use This App
+        </h2>
+        <p class="note" style="margin-top:4px">Follow these 7 simple steps — you'll be tracking in 2 minutes.</p>
+      </div>
+
+      <div class="guide-grid">
+
+        <!-- STEP 1 -->
+        <div class="guide-card step-1">
+          <div class="guide-header">
+            <div class="guide-number">1</div>
+            <div class="guide-title"><span class="guide-emoji">🎯</span>Set Your Goal First</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Tap the <strong>Goal</strong> tab at the top.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Choose <strong>Male / Female</strong>, then enter your <strong>age, weight (kg), and height (cm)</strong>.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Pick your <strong>Activity Level</strong> and weight goal (maintain / lose / gain).</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Press <strong>“Calculate & Save Goal”</strong>. Your daily kcal target appears.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row">
+              <div class="mock-label">Sex</div>
+              <div class="mock-btn" style="flex:1">Male</div>
+              <div class="mock-btn blue" style="flex:1">Female</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-label">Age</div>
+              <div class="mock-input">30</div>
+              <div class="mock-label">Weight</div>
+              <div class="mock-input">70 kg</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-label">Height</div>
+              <div class="mock-input">170 cm</div>
+            </div>
+            <div class="mock-row" style="justify-content:center">
+              <div class="mock-btn" style="width:auto;padding:5px 16px">Calculate & Save Goal</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Tip:</strong> You only do this once. It sets your personal daily calorie target.
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="guide-card step-2">
+          <div class="guide-header">
+            <div class="guide-number">2</div>
+            <div class="guide-title"><span class="guide-emoji">🍎</span>Add the Food You Eat</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Go to the <strong>Track</strong> tab.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">In <strong>Search Food</strong>, type a name (e.g. “hummus” or “chicken”).</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Pick the food from the list, then enter the <strong>weight in grams</strong> — or use a <strong>Quick</strong> button (50g, 100g…).</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Check the preview, then press <strong>“+ Add to This Day”</strong>.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row">
+              <div class="mock-label">Search</div>
+              <div class="mock-input">hummus</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-label">Food</div>
+              <div class="mock-input">Hummus (1.66 kcal/g)</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-label">Weight</div>
+              <div class="mock-input">100 g</div>
+              <div class="mock-btn amber" style="flex:1">Quick</div>
+            </div>
+            <div class="mock-row" style="justify-content:center">
+              <div class="mock-btn" style="width:auto;padding:5px 16px">+ Add to This Day</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Tip:</strong> Sodium and Cholesterol fill bars update live — watch them turn <span style="color:#fbbf24">amber</span> at 75% and <span style="color:#f87171">red</span> when over the daily limit.
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="guide-card step-3">
+          <div class="guide-header">
+            <div class="guide-number">3</div>
+            <div class="guide-title"><span class="guide-emoji">🏃</span>Track Exercise with the Timer</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Tap the <strong>Move</strong> tab.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Scroll the activity list and tap <strong>▶</strong> on the exercise you're doing (e.g. “Walking 5.6 km/h”).</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">The <strong>timer starts automatically</strong>. The selected row glows green.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">When done, press <strong>“Reset & Log”</strong>. Calories burned are added to the day.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row">
+              <div class="mock-label">Timer</div>
+              <div class="mock-input" style="text-align:center;font-size:0.9rem;font-weight:800;color:#4ade80">12:34</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-btn" style="flex:1">▶ Start</div>
+              <div class="mock-btn purple" style="flex:1">■ Reset & Log</div>
+            </div>
+            <div style="font-size:0.6rem;color:var(--muted);text-align:center;margin-top:2px">Selected exercise glows green ↓</div>
+            <div class="mock-row" style="background:rgba(20,83,45,0.4);padding:4px 6px;border-radius:6px;border-left:3px solid #22c55e">
+              <div style="font-size:0.7rem;color:#4ade80;font-weight:700">🏃 Walking (5.6 km/h)</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Tip:</strong> Each exercise row fills with colour showing how much of your daily target it contributed. Green → amber → red → <strong style="color:#fbbf24">shimmering gold</strong> at 100%.
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="guide-card step-4">
+          <div class="guide-header">
+            <div class="guide-number">4</div>
+            <div class="guide-title"><span class="guide-emoji">✍️</span>Add Manual Burn (Optional)</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">On the <strong>Move</strong> tab, find the dashed box <strong>“Add manual active kcal”</strong>.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Type kcal burned (e.g. <strong>80</strong> for walking to work).</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Press <strong>Add</strong> — it goes straight into the total burn.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Made a mistake? Press <strong>Reset</strong> to clear today's manual entries.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row">
+              <div class="mock-input" style="flex:2">80</div>
+              <div class="mock-btn" style="flex:1">Add</div>
+              <div class="mock-btn" style="flex:1;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff">Reset</div>
+            </div>
+            <div class="mock-row" style="justify-content:space-between">
+              <span style="font-size:0.65rem">Current manual total:</span>
+              <span style="color:#4ade80;font-weight:800;font-size:0.75rem">80 kcal</span>
+            </div>
+          </div>
+          <div class="guide-tip warn">
+            💡 <strong>Note:</strong> The Reset button only clears the <em>manual</em> entries — it does not affect timer-logged exercises.
+          </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="guide-card step-5">
+          <div class="guide-header">
+            <div class="guide-number">5</div>
+            <div class="guide-title"><span class="guide-emoji">🌈</span>Understand the Colours</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Every progress bar uses the same colour language:</span>
+            </div>
+          </div>
+          <div class="color-legend">
+            <div class="color-item">
+              <div class="color-swatch swatch-green"></div>
+              <span><strong>Green</strong> — safe zone (0–75%)</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch swatch-amber"></div>
+              <span><strong>Amber</strong> — approaching limit (75–90%)</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch swatch-red"></div>
+              <span><strong>Red</strong> — over the goal (90%+)</span>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch swatch-gold"></div>
+              <span><strong>Gold</strong> — exercise bonus! (100%+)</span>
+            </div>
+          </div>
+          <div class="guide-mockup" style="margin-top:8px">
+            <div style="font-size:0.6rem;color:var(--muted);margin-bottom:3px">Example: exercise target 200 kcal, you did 250 kcal</div>
+            <div class="mock-bar-track">
+              <div class="mock-bar-fill gold" style="width:100%"></div>
+            </div>
+            <div style="font-size:0.65rem;color:#fbbf24;font-weight:800;text-align:center;margin-top:3px">+50 kcal bonus 🎉</div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Sound:</strong> You'll hear a rising chime at 100%, 125%, 150% and 200% of your exercise target.
+          </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="guide-card step-6">
+          <div class="guide-header">
+            <div class="guide-number">6</div>
+            <div class="guide-title"><span class="guide-emoji">📅</span>Switch Between Days</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">On the <strong>Track</strong> tab, top area: use <strong>‹</strong> and <strong>›</strong> to go one day back or forward.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Or tap the <strong>date field</strong> to pick any day from a calendar.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Or scroll to the bottom and tap any day in <strong>“All Days”</strong>.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row" style="justify-content:center;gap:10px">
+              <div class="mock-btn" style="width:auto;padding:4px 10px">‹</div>
+              <div style="font-weight:800;font-size:0.8rem;color:#4ade80">Today</div>
+              <div class="mock-btn" style="width:auto;padding:4px 10px">›</div>
+            </div>
+            <div style="font-size:0.65rem;color:var(--muted);text-align:center">Wed, Sep 24, 2026</div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Tip:</strong> Every day is saved separately — food, exercise, and manual burn.
+          </div>
+        </div>
+
+        <!-- STEP 7 -->
+        <div class="guide-card step-7">
+          <div class="guide-header">
+            <div class="guide-number">7</div>
+            <div class="guide-title"><span class="guide-emoji">💾</span>Save & Restore Your Data</div>
+          </div>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">Your data is <strong>auto-saved</strong> in this browser every time you add something.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">For a portable backup, tap <strong>💾 Save As HTML</strong> — it downloads a full copy of the app with your data inside.</span>
+            </div>
+            <div class="guide-step">
+              <span class="arrow">→</span>
+              <span class="step-text">To restore on another device, open that saved HTML file or press <strong>📂 Restore</strong> and pick a JSON backup.</span>
+            </div>
+          </div>
+          <div class="guide-mockup">
+            <div class="mock-row">
+              <div class="mock-btn blue" style="flex:1;padding:6px">💾 Save As HTML</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-btn" style="flex:1;padding:6px;background:rgba(58,80,128,0.7);color:#f0f6ff">📂 Restore</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            💡 <strong>Tip:</strong> Open the saved HTML file in Safari on your iPhone — it will look and work exactly like this one, with your food log intact.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="guide-card" style="text-align:center;margin-top:14px;background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(59,130,246,0.15),rgba(236,72,153,0.15))">
+        <div style="font-size:2rem;margin-bottom:6px">🎉</div>
+        <div style="font-size:1rem;font-weight:800;margin-bottom:4px">You're all set!</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.5">
+          Start by setting your goal, then log your first meal.<br>
+          Come back to this Guide any time you need a refresher.
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="modal-overlay" id="exportModal">
@@ -1426,11 +1932,11 @@
       {name:"Standing", met:2.0, desc:"Light"}
     ];
 
-    const STORAGE_KEY = 'calorie_tracker_v12';
-    const PROFILE_KEY = 'calorie_profile_v8';
-    const ACTIVE_KEY = 'calorie_active_v8';
-    const ALERT_KEY = 'calorie_alerts_v8';
-    const EXERCISE_LOG_KEY = 'calorie_exercise_v7';
+    const STORAGE_KEY = 'calorie_tracker_v13';
+    const PROFILE_KEY = 'calorie_profile_v9';
+    const ACTIVE_KEY = 'calorie_active_v9';
+    const ALERT_KEY = 'calorie_alerts_v9';
+    const EXERCISE_LOG_KEY = 'calorie_exercise_v8';
 
     const NA_LIMIT = 2000;
     const CHOL_LIMIT = 300;
@@ -1699,7 +2205,6 @@
       document.getElementById('totalNa').textContent = Math.round(totalNa);
       document.getElementById('totalChol').textContent = totalChol.toFixed(1);
 
-      // Sodium fill
       const naPct = Math.min(150, (totalNa / NA_LIMIT) * 100);
       const naFill = document.getElementById('naFill');
       const naBox = document.getElementById('naBox');
@@ -1718,7 +2223,6 @@
         naPctLabel.textContent = '· ' + Math.round(naPct) + '%';
       }
 
-      // Cholesterol fill
       const cholPct = Math.min(150, (totalChol / CHOL_LIMIT) * 100);
       const cholFill = document.getElementById('cholFill');
       const cholBox = document.getElementById('cholBox');
