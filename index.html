@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Calories">
+  <title>Food Calorie Tracker</title>
+  <style>
+    :root {
+      --bg: #0f1e3d;
+      --card: rgba(30, 48, 82, 0.72);
+      --border: #3a5080;
+      --text: #f0f6ff;
+      --muted: #a8bde0;
+      --accent: #22c55e;
+      --accent2: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --pink: #ec4899;
+      --purple: #a855f7;
+      --cyan: #06b6d4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      padding: 12px; padding-bottom: 60px; line-height: 1.4;
+      position: relative; overflow-x: hidden;
+    }
+
+    /* ============ ANIMATED BACKGROUND ============ */
+    .bg-animated {
+      position: fixed; inset: 0; z-index: -3;
+      background: linear-gradient(135deg, #0f1e3d 0%, #1a2f5a 25%, #2a1a4a 50%, #1a2f5a 75%, #0f1e3d 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      z-index: -2; opacity: 0.5; pointer-events: none;
+      animation: orbFloat 18s infinite ease-in-out;
+    }
+    .orb-1 { width: 480px; height: 480px; background: radial-gradient(circle, #22c55e 0%, transparent 70%); top: -140px; left: -140px; animation-duration: 22s; }
+    .orb-2 { width: 440px; height: 440px; background: radial-gradient(circle, #ec4899 0%, transparent 70%); top: 30%; right: -160px; animation-duration: 26s; animation-delay: -4s; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, #3b82f6 0%, transparent 70%); bottom: -120px; left: 20%; animation-duration: 20s; animation-delay: -8s; }
+    .orb-4 { width: 360px; height: 360px; background: radial-gradient(circle, #f59e0b 0%, transparent 70%); top: 55%; left: -100px; animation-duration: 24s; animation-delay: -12s; }
+    .orb-5 { width: 320px; height: 320px; background: radial-gradient(circle, #a855f7 0%, transparent 70%); bottom: 20%; right: 15%; animation-duration: 28s; animation-delay: -6s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(50px, -40px) scale(1.15); }
+      66% { transform: translate(-40px, 30px) scale(0.92); }
+    }
+
+    .bg-icons { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-icons span {
+      position: absolute; font-size: 2.6rem; opacity: 0.42;
+      animation: floatIcon 22s infinite ease-in-out;
+      filter: drop-shadow(0 0 14px rgba(255,255,255,0.5)) drop-shadow(0 0 24px rgba(255,255,255,0.2));
+      text-shadow: 0 0 20px currentColor;
+    }
+    .bg-icons span:nth-child(1) { top: 4%; left: 4%; animation-duration: 24s; font-size: 3rem; color: #ff6b9d; }
+    .bg-icons span:nth-child(2) { top: 10%; right: 6%; animation-duration: 28s; animation-delay: -3s; font-size: 3.4rem; color: #4ade80; }
+    .bg-icons span:nth-child(3) { bottom: 16%; left: 6%; animation-duration: 22s; animation-delay: -6s; font-size: 3.2rem; color: #60a5fa; }
+    .bg-icons span:nth-child(4) { bottom: 8%; right: 8%; animation-duration: 26s; animation-delay: -9s; font-size: 3.6rem; color: #fbbf24; }
+    .bg-icons span:nth-child(5) { top: 42%; left: 46%; animation-duration: 32s; animation-delay: -12s; font-size: 4rem; opacity: 0.22; color: #a855f7; }
+    .bg-icons span:nth-child(6) { top: 66%; left: 18%; animation-duration: 30s; animation-delay: -4s; font-size: 3rem; color: #06b6d4; }
+    .bg-icons span:nth-child(7) { top: 6%; left: 62%; animation-duration: 25s; animation-delay: -8s; font-size: 3.2rem; color: #ec4899; }
+    .bg-icons span:nth-child(8) { bottom: 36%; right: 24%; animation-duration: 29s; animation-delay: -2s; font-size: 2.9rem; color: #22c55e; }
+    .bg-icons span:nth-child(9) { top: 28%; left: 8%; animation-duration: 27s; animation-delay: -5s; font-size: 3.1rem; color: #f97316; }
+    .bg-icons span:nth-child(10) { top: 78%; right: 4%; animation-duration: 23s; animation-delay: -11s; font-size: 3.3rem; color: #8b5cf6; }
+    .bg-icons span:nth-child(11) { top: 20%; left: 42%; animation-duration: 31s; animation-delay: -7s; font-size: 2.8rem; color: #10b981; }
+    .bg-icons span:nth-child(12) { bottom: 4%; left: 38%; animation-duration: 25s; animation-delay: -10s; font-size: 3.5rem; color: #f43f5e; }
+    .bg-icons span:nth-child(13) { top: 52%; right: 42%; animation-duration: 33s; animation-delay: -14s; font-size: 3rem; color: #eab308; }
+    .bg-icons span:nth-child(14) { top: 34%; right: 8%; animation-duration: 21s; animation-delay: -1s; font-size: 2.7rem; color: #06b6d4; }
+    .bg-icons span:nth-child(15) { bottom: 44%; left: 28%; animation-duration: 28s; animation-delay: -13s; font-size: 3.2rem; color: #d946ef; }
+
+    @keyframes floatIcon {
+      0% { transform: translate(0, 0) rotate(0); }
+      25% { transform: translate(28px, -34px) rotate(12deg); }
+      50% { transform: translate(-22px, 24px) rotate(-10deg); }
+      75% { transform: translate(32px, 18px) rotate(14deg); }
+      100% { transform: translate(0, 0) rotate(0); }
+    }
+
+    .bg-heart {
+      position: fixed; top: 12%; right: 6%; font-size: 6rem;
+      z-index: 5; pointer-events: none;
+      animation: heartBeat 1.8s infinite ease-in-out;
+      filter: drop-shadow(0 0 30px rgba(244,63,94,0.9))
+              drop-shadow(0 0 60px rgba(251,113,133,0.7))
+              drop-shadow(0 0 90px rgba(251,113,133,0.4));
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      14% { transform: scale(1.25); opacity: 1; }
+      28% { transform: scale(1); opacity: 0.9; }
+      42% { transform: scale(1.18); opacity: 1; }
+      70% { transform: scale(1); opacity: 0.85; }
+    }
+    .bg-heart-2 {
+      position: fixed; bottom: 14%; left: 5%; font-size: 4rem;
+      z-index: 5; pointer-events: none;
+      animation: heartBeat 2.2s infinite ease-in-out;
+      animation-delay: -0.9s;
+      filter: drop-shadow(0 0 24px rgba(236,72,153,0.85))
+              drop-shadow(0 0 50px rgba(236,72,153,0.5));
+    }
+
+    .bg-particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+    .bg-particles span {
+      position: absolute; width: 6px; height: 6px; border-radius: 50%;
+      animation: rise 16s infinite linear;
+      box-shadow: 0 0 12px currentColor;
+    }
+    .bg-particles span:nth-child(1) { left: 8%; background: #22c55e; color: #22c55e; animation-duration: 18s; }
+    .bg-particles span:nth-child(2) { left: 22%; background: #3b82f6; color: #3b82f6; animation-duration: 22s; animation-delay: -4s; width: 5px; height: 5px; }
+    .bg-particles span:nth-child(3) { left: 38%; background: #ec4899; color: #ec4899; animation-duration: 20s; animation-delay: -8s; width: 7px; height: 7px; }
+    .bg-particles span:nth-child(4) { left: 55%; background: #f59e0b; color: #f59e0b; animation-duration: 24s; animation-delay: -3s; }
+    .bg-particles span:nth-child(5) { left: 72%; background: #a855f7; color: #a855f7; animation-duration: 19s; animation-delay: -11s; width: 5px; height: 5px; }
+    .bg-particles span:nth-child(6) { left: 88%; background: #06b6d4; color: #06b6d4; animation-duration: 21s; animation-delay: -6s; }
+    .bg-particles span:nth-child(7) { left: 48%; background: #22c55e; color: #22c55e; animation-duration: 26s; animation-delay: -14s; width: 4px; height: 4px; }
+    .bg-particles span:nth-child(8) { left: 65%; background: #ec4899; color: #ec4899; animation-duration: 17s; animation-delay: -9s; width: 6px; height: 6px; }
+    .bg-particles span:nth-child(9) { left: 15%; background: #fbbf24; color: #fbbf24; animation-duration: 23s; animation-delay: -12s; }
+    .bg-particles span:nth-child(10) { left: 80%; background: #a855f7; color: #a855f7; animation-duration: 25s; animation-delay: -5s; width: 5px; height: 5px; }
+
+    @keyframes rise {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+    }
+
+    body.flash-red { animation: flashRed 0.4s ease infinite; }
+    @keyframes flashRed { 0%, 100% { background: var(--bg); } 50% { background: #4a1010; } }
+
+    .container {
+      max-width: 520px; margin: 0 auto;
+      position: relative; z-index: 10;
+    }
+
+    header { text-align: center; margin-bottom: 10px; padding-top: env(safe-area-inset-top); }
+    h1 {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #ec4899, #f59e0b, #22c55e);
+      background-size: 300% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmerText 6s linear infinite;
+    }
+    @keyframes shimmerText { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
+    .subtitle { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+
+    .tabs, .date-nav, .goal-card, .total-box, .add-card, .log-card,
+    .profile-card, .chart-card, .hist-card, .exercise-card, .timer-card, .modal, .history-card {
+      background: var(--card);
+      backdrop-filter: blur(14px) saturate(1.4);
+      -webkit-backdrop-filter: blur(14px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+
+    .tabs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+      margin-bottom: 12px; border-radius: 14px; padding: 4px;
+    }
+    .tab {
+      background: transparent; color: var(--muted); border: none;
+      border-radius: 10px; padding: 10px 4px; font-size: 0.78rem; font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      box-shadow: 0 0 20px rgba(34,197,94,0.5);
+    }
+
+    .panel { display: none; animation: fadePanel 0.3s ease; }
+    .panel.active { display: block; }
+    @keyframes fadePanel { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .date-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      border-radius: 14px; padding: 8px 10px; margin-bottom: 12px; gap: 6px;
+    }
+    .date-nav button {
+      background: rgba(58, 80, 128, 0.7); color: var(--text); border: none;
+      border-radius: 10px; width: 40px; height: 40px; font-size: 1.25rem;
+      font-weight: 700; flex-shrink: 0; padding: 0; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .date-nav button:hover { background: var(--accent); color: #052e16; }
+    .date-center { flex: 1; text-align: center; }
+    .date-label { font-size: 1rem; font-weight: 700; }
+    .date-sub { font-size: 0.72rem; color: var(--muted); }
+    .date-input-wrap input {
+      background: rgba(15,30,61,0.7); border: 1px solid var(--border);
+      border-radius: 8px; padding: 5px 8px; color: var(--text);
+      font-size: 0.85rem; width: 100%; text-align: center; margin-top: 4px; outline: none;
+    }
+    .date-input-wrap input:focus { border-color: var(--accent); }
+
+    .goal-card { border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+    .goal-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .goal-eaten { font-size: 1.5rem; font-weight: 800; color: #4ade80; }
+    .goal-target { font-size: 0.85rem; color: var(--muted); }
+
+    .goal-bar-wrap { width: 100%; margin: 6px 0 8px 0; }
+    .goal-bar-track {
+      width: 100%; height: 40px;
+      background: rgba(10,20,40,0.8);
+      border-radius: 14px; overflow: hidden;
+      border: 2px solid rgba(34,197,94,0.35);
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 24px rgba(34,197,94,0.2);
+    }
+    .goal-bar-fill {
+      height: 100%; border-radius: 12px;
+      transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1), background 0.5s;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #ec4899, #f59e0b);
+      background-size: 300% auto;
+      animation: shimmerText 4s linear infinite;
+      position: relative;
+      box-shadow: 0 0 30px rgba(34,197,94,0.7),
+                  0 0 60px rgba(59,130,246,0.5),
+                  inset 0 0 20px rgba(255,255,255,0.3);
+    }
+    .goal-bar-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+      animation: shimmerBar 2s infinite;
+    }
+    @keyframes shimmerBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    .goal-bar-fill.warn80 {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f97316, #f59e0b);
+      background-size: 300% auto;
+      box-shadow: 0 0 30px rgba(245,158,11,0.8),
+                  0 0 60px rgba(251,191,36,0.6),
+                  inset 0 0 20px rgba(255,255,255,0.3);
+    }
+    .goal-bar-fill.warn90 {
+      background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24, #ef4444);
+      background-size: 300% auto;
+      box-shadow: 0 0 30px rgba(239,68,68,0.85),
+                  0 0 60px rgba(249,115,22,0.65),
+                  inset 0 0 20px rgba(255,255,255,0.35);
+    }
+    .goal-bar-fill.warn100 {
+      background: linear-gradient(90deg, #dc2626, #ef4444, #f97316, #dc2626);
+      background-size: 200% auto;
+      animation: shimmerText 1.2s linear infinite, glowPulseRed 0.9s ease infinite;
+    }
+    @keyframes glowPulseRed {
+      0%, 100% {
+        box-shadow: 0 0 30px rgba(220,38,38,0.9),
+                    0 0 60px rgba(239,68,68,0.7),
+                    0 0 100px rgba(239,68,68,0.4),
+                    inset 0 0 20px rgba(255,255,255,0.4);
+      }
+      50% {
+        box-shadow: 0 0 50px rgba(220,38,38,1),
+                    0 0 100px rgba(239,68,68,0.9),
+                    0 0 160px rgba(239,68,68,0.6),
+                    inset 0 0 30px rgba(255,255,255,0.6);
+      }
+    }
+    .goal-bar-pct {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 900; font-size: 0.95rem; color: #fff;
+      text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 16px rgba(0,0,0,0.7);
+      letter-spacing: 0.5px; z-index: 2; pointer-events: none;
+    }
+    .goal-bar-track.warn80-track { border-color: rgba(245,158,11,0.55); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 24px rgba(245,158,11,0.35); }
+    .goal-bar-track.warn90-track { border-color: rgba(239,68,68,0.65); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 28px rgba(239,68,68,0.45); }
+    .goal-bar-track.warn100-track { border-color: rgba(220,38,38,0.85); box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 36px rgba(220,38,38,0.6); }
+
+    .goal-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.78rem; color: var(--muted); }
+    .goal-meta strong { color: var(--text); }
+    .alert-banner { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-align: center; }
+    .alert-banner.show80 { display: block; background: #422006; color: #fbbf24; border: 1px solid #f59e0b; }
+    .alert-banner.show90 { display: block; background: #450a0a; color: #fca5a5; border: 1px solid #ef4444; }
+    .alert-banner.show100 { display: block; background: #7f1d1d; color: #fff; border: 2px solid #ef4444; animation: flashText 0.5s ease infinite; }
+    @keyframes flashText { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* ===== TOTALS with glowing fills for sodium & cholesterol ===== */
+    .totals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .total-box {
+      border-radius: 14px; padding: 10px 6px; text-align: center;
+      position: relative; overflow: hidden;
+      transition: all 0.3s ease;
+      z-index: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--card);
+      backdrop-filter: blur(14px) saturate(1.4);
+      -webkit-backdrop-filter: blur(14px) saturate(1.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .total-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 2; }
+    .total-box.cal::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .total-box.na::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .total-box.chol::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    /* Filling background inside sodium / cholesterol boxes */
+    .total-fill {
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 0%;
+      height: 100%;
+      border-radius: 12px;
+      transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1), background 0.5s;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .total-fill.na-fill {
+      background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+      box-shadow: inset 0 0 16px rgba(59,130,246,0.6);
+    }
+    .total-fill.na-fill.warn {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f97316);
+      box-shadow: inset 0 0 20px rgba(245,158,11,0.8);
+      opacity: 0.65;
+    }
+    .total-fill.na-fill.danger {
+      background: linear-gradient(90deg, #ef4444, #f97316, #dc2626);
+      background-size: 200% auto;
+      animation: shimmerText 1.5s linear infinite;
+      box-shadow: inset 0 0 24px rgba(239,68,68,0.9);
+      opacity: 0.75;
+    }
+    .total-fill.chol-fill {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d);
+      box-shadow: inset 0 0 16px rgba(245,158,11,0.6);
+    }
+    .total-fill.chol-fill.warn {
+      background: linear-gradient(90deg, #f97316, #fb923c, #f59e0b);
+      box-shadow: inset 0 0 20px rgba(249,115,22,0.8);
+      opacity: 0.65;
+    }
+    .total-fill.chol-fill.danger {
+      background: linear-gradient(90deg, #dc2626, #ef4444, #f97316);
+      background-size: 200% auto;
+      animation: shimmerText 1.5s linear infinite;
+      box-shadow: inset 0 0 24px rgba(220,38,38,0.9);
+      opacity: 0.75;
+    }
+
+    .total-box .total-label,
+    .total-box .total-value,
+    .total-box .total-unit {
+      position: relative;
+      z-index: 1;
+    }
+
+    .total-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .total-value { font-size: 1.25rem; font-weight: 800; margin-top: 2px; }
+    .total-box.cal .total-value { color: #4ade80; }
+    .total-box.na .total-value { color: #60a5fa; }
+    .total-box.chol .total-value { color: #fbbf24; }
+    .total-unit { font-size: 0.62rem; color: var(--muted); }
+
+    /* Glowing borders when near/over the limit */
+    .total-box.na.near-limit {
+      border-color: rgba(245,158,11,0.7);
+      box-shadow: 0 0 16px rgba(245,158,11,0.5), 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .total-box.na.over-limit {
+      border-color: rgba(239,68,68,0.9);
+      box-shadow: 0 0 22px rgba(239,68,68,0.7), 0 8px 32px rgba(0,0,0,0.25);
+      animation: pulseCard 1.3s ease infinite;
+    }
+    .total-box.chol.near-limit {
+      border-color: rgba(249,115,22,0.7);
+      box-shadow: 0 0 16px rgba(249,115,22,0.5), 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .total-box.chol.over-limit {
+      border-color: rgba(220,38,38,0.9);
+      box-shadow: 0 0 22px rgba(220,38,38,0.7), 0 8px 32px rgba(0,0,0,0.25);
+      animation: pulseCard 1.3s ease infinite;
+    }
+    @keyframes pulseCard {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .add-card, .profile-card, .chart-card, .hist-card, .exercise-card, .timer-card {
+      border-radius: 16px; padding: 14px; margin-bottom: 12px;
+    }
+    .form-group { margin-bottom: 10px; }
+    label {
+      display: block; font-size: 0.68rem; color: var(--muted); font-weight: 600;
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    input, select {
+      width: 100%; background: rgba(15,30,61,0.7); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 12px; color: var(--text);
+      font-size: 1rem; outline: none; -webkit-appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+    #foodSelect { min-height: 48px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .preview {
+      background: rgba(15,30,61,0.7); border-radius: 10px; padding: 8px 12px;
+      margin-bottom: 10px; font-size: 0.85rem; display: none;
+      border: 1px dashed var(--border);
+    }
+    .preview.show { display: block; animation: slideDown 0.2s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .preview strong { color: #4ade80; }
+
+    button {
+      border: none; border-radius: 12px; padding: 13px; font-size: 0.95rem;
+      font-weight: 700; cursor: pointer; width: 100%;
+      transition: transform 0.1s, opacity 0.15s, box-shadow 0.2s;
+    }
+    button:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-add { background: linear-gradient(135deg, #22c55e, #16a34a); color: #052e16; box-shadow: 0 4px 16px rgba(34,197,94,0.4); }
+    .btn-add:hover { box-shadow: 0 6px 24px rgba(34,197,94,0.6); }
+    .btn-secondary { background: rgba(58,80,128,0.7); color: var(--text); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+    .btn-export { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+    .btn-save-day { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; box-shadow: 0 4px 16px rgba(168,85,247,0.4); }
+    .btn-reset-sm {
+      background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.5);
+      padding: 11px; font-size: 0.9rem;
+    }
+    .btn-reset-sm:hover { background: rgba(239,68,68,0.3); }
+
+    .log-card { border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+    .log-header {
+      display: grid; grid-template-columns: 1.8fr 0.7fr 0.7fr 0.45fr; gap: 4px;
+      padding: 8px 12px; background: rgba(10,20,40,0.6); font-size: 0.62rem;
+      color: var(--muted); font-weight: 700; text-transform: uppercase;
+    }
+    .log-list { max-height: 40vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .log-row {
+      display: grid; grid-template-columns: 1.8fr 0.7fr 0.7fr 0.45fr; gap: 4px;
+      padding: 10px 12px; align-items: center;
+      border-bottom: 1px solid var(--border); font-size: 0.88rem;
+      transition: background 0.2s;
+    }
+    .log-row:nth-child(even) { background: rgba(30,48,82,0.4); }
+    .log-row:nth-child(odd) { background: rgba(20,35,65,0.4); }
+    .log-row:last-child { border-bottom: none; }
+    .log-row:hover { background: rgba(58,80,128,0.4); }
+    .food-name { font-weight: 600; word-break: break-word; }
+    .food-weight { font-size: 0.7rem; color: var(--muted); }
+    .val-cal { color: #4ade80; font-weight: 700; text-align: right; }
+    .val-na { color: #60a5fa; font-weight: 600; text-align: right; font-size: 0.8rem; }
+    .delete-btn {
+      background: transparent; color: var(--danger); border: none;
+      font-size: 1.2rem; padding: 0; width: auto; font-weight: 400;
+      transition: transform 0.2s;
+    }
+    .delete-btn:hover { transform: scale(1.3); }
+    .empty { text-align: center; padding: 24px 16px; color: var(--muted); }
+    .empty .icon { font-size: 2rem; margin-bottom: 6px; }
+
+    .history-card { border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
+    .history-title {
+      padding: 9px 14px; font-size: 0.75rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; background: rgba(10,20,40,0.6);
+      border-bottom: 1px solid var(--border);
+    }
+    .history-list { max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .history-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.2s;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-row:active { background: rgba(58,80,128,0.5); }
+    .history-row.active { background: rgba(26,58,42,0.6); border-left: 3px solid var(--accent); }
+    .history-date { font-weight: 600; font-size: 0.88rem; }
+    .history-stats { font-size: 0.78rem; color: var(--muted); text-align: right; }
+    .history-stats span { color: #4ade80; font-weight: 700; }
+
+    .hist-bars { display: flex; align-items: flex-end; gap: 4px; height: 140px; padding: 8px 0; }
+    .hist-col { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+    .hist-bar {
+      width: 100%; max-width: 36px; border-radius: 6px 6px 2px 2px;
+      min-height: 4px; transition: height 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .hist-label { font-size: 0.6rem; color: var(--muted); margin-top: 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .hist-val { font-size: 0.65rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+
+    .actions-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 200; align-items: flex-end; justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      border-radius: 20px 20px 0 0; padding: 18px; width: 100%; max-width: 520px;
+      max-height: 85vh; overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal h3 { font-size: 1.1rem; margin-bottom: 12px; text-align: center; }
+    .export-options { display: grid; gap: 8px; margin-bottom: 12px; }
+    .export-opt {
+      background: rgba(15,30,61,0.7); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px; text-align: left;
+      color: var(--text); font-weight: 600; transition: all 0.2s;
+    }
+    .export-opt:hover { border-color: var(--accent); background: rgba(34,197,94,0.1); }
+    .export-opt small { display: block; font-weight: 400; color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+    .range-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #166534; color: white; padding: 11px 20px;
+      border-radius: 30px; font-weight: 700; font-size: 0.88rem;
+      opacity: 0; transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 300; pointer-events: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.warn { background: #92400e; }
+    .toast.danger { background: #991b1b; }
+    .toast.triumph {
+      background: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+      background-size: 200% auto;
+      animation: shimmerText 2s linear infinite;
+      font-size: 1rem;
+      padding: 14px 26px;
+      box-shadow: 0 0 30px rgba(245,158,11,0.8),
+                  0 0 60px rgba(239,68,68,0.5);
+    }
+
+    .search-wrap { position: relative; }
+    #foodSearch { padding-right: 36px; }
+    .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .note { font-size: 0.7rem; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.4; }
+    .bmr-result {
+      background: rgba(15,30,61,0.7); border-radius: 12px; padding: 12px;
+      margin-top: 10px; border: 1px solid var(--border); text-align: center;
+    }
+    .bmr-result .big { font-size: 1.6rem; font-weight: 800; color: #4ade80; }
+    .sex-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sex-btn {
+      background: rgba(15,30,61,0.7); border: 2px solid var(--border);
+      border-radius: 12px; padding: 12px; color: var(--text);
+      font-weight: 700; transition: all 0.2s;
+    }
+    .sex-btn.active { border-color: var(--accent); background: rgba(20,83,45,0.6); color: #4ade80; box-shadow: 0 0 20px rgba(34,197,94,0.3); }
+
+    /* ===== EXERCISE BURN BAR ===== */
+    .burn-bar-wrap { width: 100%; margin: 12px 0 16px 0; }
+    .burn-bar-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 8px; font-size: 0.85rem; font-weight: 700;
+    }
+    .burn-bar-header .bb-value {
+      font-size: 1.6rem; font-weight: 900;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #ec4899);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmerText 3s linear infinite;
+    }
+    .burn-bar-header .bb-target { color: var(--muted); font-size: 0.8rem; }
+    .burn-bar-track {
+      width: 100%; height: 42px;
+      background: rgba(10,20,40,0.8);
+      border-radius: 14px; overflow: hidden;
+      border: 2px solid rgba(59,130,246,0.35);
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 24px rgba(59,130,246,0.2);
+    }
+    .burn-bar-fill {
+      height: 100%; border-radius: 12px;
+      transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1), background 0.5s;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #ec4899, #f59e0b);
+      background-size: 300% auto;
+      animation: shimmerText 4s linear infinite;
+      position: relative;
+      box-shadow: 0 0 30px rgba(34,197,94,0.7),
+                  0 0 60px rgba(59,130,246,0.5),
+                  inset 0 0 20px rgba(255,255,255,0.3);
+    }
+    .burn-bar-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+      animation: shimmerBar 2s infinite;
+    }
+    .burn-bar-fill.complete {
+      background: linear-gradient(90deg, #22c55e, #4ade80, #22c55e);
+      background-size: 200% auto;
+      animation: shimmerText 1.5s linear infinite, glowPulseBar 1.2s ease infinite;
+    }
+    @keyframes glowPulseBar {
+      0%, 100% { box-shadow: 0 0 30px rgba(34,197,94,0.7), 0 0 60px rgba(34,197,94,0.5), inset 0 0 20px rgba(255,255,255,0.3); }
+      50% { box-shadow: 0 0 50px rgba(34,197,94,1), 0 0 100px rgba(34,197,94,0.7), inset 0 0 30px rgba(255,255,255,0.5); }
+    }
+    .burn-bar-fill.over100 {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b, #ef4444, #ec4899, #a855f7, #fbbf24);
+      background-size: 400% auto;
+      animation: shimmerText 2s linear infinite, glowPulseGold 1.4s ease infinite;
+    }
+    @keyframes glowPulseGold {
+      0%, 100% {
+        box-shadow: 0 0 40px rgba(251,191,36,0.95),
+                    0 0 80px rgba(245,158,11,0.75),
+                    0 0 140px rgba(236,72,153,0.5),
+                    inset 0 0 25px rgba(255,255,255,0.5);
+      }
+      50% {
+        box-shadow: 0 0 60px rgba(251,191,36,1),
+                    0 0 120px rgba(245,158,11,0.95),
+                    0 0 200px rgba(236,72,153,0.75),
+                    inset 0 0 40px rgba(255,255,255,0.7);
+      }
+    }
+    .burn-bar-track.over100-track {
+      border-color: rgba(251,191,36,0.85);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 36px rgba(251,191,36,0.7);
+    }
+    .burn-bar-pct {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 900; font-size: 0.95rem; color: #fff;
+      text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 16px rgba(0,0,0,0.7);
+      letter-spacing: 0.5px; z-index: 2; pointer-events: none;
+    }
+    .burn-bar-pct.over100-pct {
+      text-shadow: 0 0 12px rgba(0,0,0,0.95),
+                   0 0 24px rgba(251,191,36,0.9),
+                   0 0 40px rgba(245,158,11,0.7);
+      font-size: 1.05rem;
+    }
+    .burn-bar-overflow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #fbbf24, #ef4444);
+      color: #1a0a00;
+      font-weight: 900;
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      border-radius: 10px;
+      box-shadow: 0 0 16px rgba(251,191,36,0.9),
+                  0 0 32px rgba(245,158,11,0.6);
+      z-index: 3;
+      pointer-events: none;
+      animation: pulseText 1.4s infinite;
+    }
+
+    .burn-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .burn-box {
+      background: rgba(15,30,61,0.7); border-radius: 10px;
+      padding: 8px; text-align: center; border: 1px solid var(--border);
+    }
+    .burn-box .bl { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .burn-box .bv { font-size: 1.1rem; font-weight: 800; color: #4ade80; }
+    .burn-box .bu { font-size: 0.6rem; color: var(--muted); }
+
+    /* ===== EXERCISE LIST — FIXED FILL ===== */
+    .exercise-list { max-height: 45vh; overflow-y: auto; }
+    .exercise-item {
+      display: grid; grid-template-columns: 2fr 1.2fr 0.9fr 0.7fr; gap: 4px;
+      padding: 8px 10px; align-items: center;
+      border-bottom: 1px solid var(--border); font-size: 0.8rem;
+      transition: all 0.3s; border-radius: 8px; margin-bottom: 2px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(20,35,65,0.5);
+      isolation: isolate;
+    }
+    .exercise-item:nth-child(even) { background: rgba(30,48,82,0.5); }
+    .exercise-item:nth-child(odd) { background: rgba(20,35,65,0.5); }
+
+    /* The fill is the ONLY visible colored background */
+    .exercise-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0%;
+      border-radius: 8px;
+      transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 1;
+    }
+    .exercise-fill.tier-low {
+      background: linear-gradient(90deg, rgba(34,197,94,0.55), rgba(59,130,246,0.55));
+      box-shadow: inset 0 0 14px rgba(34,197,94,0.5);
+    }
+    .exercise-fill.tier-mid {
+      background: linear-gradient(90deg, rgba(245,158,11,0.7), rgba(251,191,36,0.7));
+      box-shadow: inset 0 0 16px rgba(245,158,11,0.7);
+    }
+    .exercise-fill.tier-high {
+      background: linear-gradient(90deg, rgba(239,68,68,0.75), rgba(236,72,153,0.75), rgba(251,191,36,0.8));
+      box-shadow: inset 0 0 20px rgba(239,68,68,0.8);
+    }
+    .exercise-fill.tier-max {
+      background: linear-gradient(90deg, rgba(251,191,36,0.9), rgba(245,158,11,0.9), rgba(239,68,68,0.9), rgba(236,72,153,0.9));
+      background-size: 200% auto;
+      animation: shimmerText 3s linear infinite;
+      box-shadow: inset 0 0 24px rgba(251,191,36,1),
+                  0 0 12px rgba(251,191,36,0.5);
+    }
+
+    /* Content sits above the fill */
+    .exercise-item > *:not(.exercise-fill) {
+      position: relative;
+      z-index: 2;
+    }
+
+    .exercise-item.selected {
+      background: rgba(20,83,45,0.7) !important;
+      border: 2px solid #22c55e;
+      box-shadow: 0 0 20px rgba(34,197,94,0.7), 0 0 40px rgba(34,197,94,0.4);
+      animation: glowPulse 1.5s ease infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(34,197,94,0.7), 0 0 40px rgba(34,197,94,0.4); }
+      50% { box-shadow: 0 0 30px rgba(34,197,94,1), 0 0 60px rgba(34,197,94,0.6); }
+    }
+    .exercise-name { font-weight: 600; }
+    .exercise-met { text-align: center; color: var(--muted); font-size: 0.7rem; }
+    .exercise-kcal { text-align: right; color: #4ade80; font-weight: 700; }
+    .exercise-timer {
+      text-align: center; font-weight: 800; font-size: 0.85rem;
+      font-variant-numeric: tabular-nums; color: #fbbf24;
+    }
+    .exercise-timer.running { animation: pulseText 1s infinite; }
+    @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .exercise-add {
+      background: rgba(58,80,128,0.7); color: var(--text); border: none;
+      border-radius: 8px; padding: 6px 8px; font-size: 0.7rem;
+      font-weight: 700; cursor: pointer; width: 100%;
+    }
+    .exercise-add:active { background: var(--accent); color: #052e16; }
+
+    .selected-banner {
+      display: none; background: linear-gradient(135deg, rgba(20,83,45,0.8), rgba(22,101,52,0.8));
+      border: 2px solid #22c55e; border-radius: 12px; padding: 10px;
+      margin-bottom: 10px; text-align: center;
+      box-shadow: 0 0 20px rgba(34,197,94,0.5);
+    }
+    .selected-banner.show { display: block; animation: slideDown 0.3s ease; }
+    .selected-banner .sb-name { font-weight: 800; font-size: 1rem; color: #4ade80; }
+    .selected-banner .sb-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .target-display {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(15,30,61,0.7); border-radius: 10px; padding: 8px 12px;
+      margin-bottom: 10px; font-size: 0.8rem;
+    }
+    .target-display strong { color: #4ade80; }
+
+    .manual-active-card {
+      background: rgba(15,30,61,0.6); border-radius: 12px;
+      padding: 10px; margin-bottom: 10px;
+      border: 1px dashed var(--border);
+    }
+    .manual-active-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+    }
+
+    .timer-display {
+      font-size: 2.5rem; font-weight: 800; text-align: center;
+      font-variant-numeric: tabular-nums; color: #4ade80; margin: 8px 0;
+    }
+    .timer-display.running { animation: pulseText 1s infinite; }
+
+    /* ===== LANDSCAPE ===== */
+    @media (orientation: landscape) and (min-width: 560px) {
+      body { padding: 12px; padding-bottom: 30px; font-size: 15px; }
+      .container { max-width: 1100px; }
+      header { margin-bottom: 10px; }
+      h1 { font-size: 1.6rem; }
+      .subtitle { font-size: 0.85rem; }
+      .tabs { margin-bottom: 12px; padding: 5px; gap: 4px; }
+      .tab { padding: 10px 4px; font-size: 0.85rem; }
+      .date-nav { padding: 8px 12px; margin-bottom: 12px; }
+      .date-nav button { width: 40px; height: 40px; font-size: 1.2rem; }
+      .date-label { font-size: 1rem; }
+      .date-sub { font-size: 0.75rem; }
+      .goal-card { padding: 14px 18px; margin-bottom: 12px; }
+      .goal-eaten { font-size: 1.7rem; }
+      .goal-target { font-size: 1rem; }
+      .goal-bar-track { height: 48px; }
+      .goal-bar-pct { font-size: 1rem; }
+      .goal-meta { font-size: 0.85rem; }
+
+      .totals { grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+      .total-box { padding: 16px 10px; border-radius: 16px; }
+      .total-label { font-size: 0.75rem; }
+      .total-value { font-size: 2rem; margin-top: 4px; }
+      .total-unit { font-size: 0.75rem; }
+
+      .add-card, .profile-card, .chart-card, .hist-card,
+      .exercise-card, .timer-card { padding: 16px 18px; margin-bottom: 12px; }
+      .form-group { margin-bottom: 10px; }
+      label { font-size: 0.72rem; margin-bottom: 5px; }
+      input, select { padding: 11px 13px; font-size: 0.95rem; }
+      #foodSelect { min-height: 44px; }
+      button { padding: 12px; font-size: 0.9rem; }
+      .preview { padding: 10px 14px; font-size: 0.88rem; margin-bottom: 10px; }
+
+      .log-list { max-height: 45vh; }
+      .log-header { padding: 8px 12px; font-size: 0.7rem; }
+      .log-row { padding: 11px 12px; font-size: 0.9rem; }
+      .food-name { font-size: 0.9rem; }
+      .food-weight { font-size: 0.72rem; }
+      .val-na { font-size: 0.82rem; }
+
+      .hist-bars { height: 140px; }
+      .hist-bar { max-width: 38px; }
+      .hist-label { font-size: 0.65rem; }
+      .hist-val { font-size: 0.72rem; }
+      .exercise-list { max-height: 42vh; }
+      .exercise-item { padding: 9px 11px; font-size: 0.85rem; grid-template-columns: 2fr 1.2fr 0.9fr 0.7fr; }
+      .exercise-timer { font-size: 0.9rem; }
+      .timer-display { font-size: 2.6rem; margin: 8px 0; }
+      .selected-banner { padding: 10px; margin-bottom: 10px; }
+      .selected-banner .sb-name { font-size: 1rem; }
+      .note { font-size: 0.72rem; margin-top: 8px; }
+      .bmr-result { padding: 14px; margin-top: 10px; }
+      .bmr-result .big { font-size: 1.6rem; }
+      .burn-summary { gap: 10px; }
+      .burn-bar-track { height: 48px; border-radius: 16px; }
+      .burn-bar-header .bb-value { font-size: 1.8rem; }
+      .burn-bar-pct { font-size: 1rem; }
+      .manual-active-row { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    @media (min-width: 1200px) {
+      .container { max-width: 1200px; }
+      body { font-size: 16px; }
+      h1 { font-size: 1.8rem; }
+      .subtitle { font-size: 0.95rem; }
+      .tab { font-size: 0.9rem; padding: 12px 6px; }
+      .total-value { font-size: 2.4rem; }
+      .total-label { font-size: 0.85rem; }
+      .goal-eaten { font-size: 2rem; }
+      .goal-bar-track { height: 56px; }
+      .goal-bar-pct { font-size: 1.1rem; }
+      .burn-bar-track { height: 56px; }
+      .burn-bar-header .bb-value { font-size: 2.1rem; }
+      .burn-bar-pct { font-size: 1.1rem; }
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #snapshotArea, #snapshotArea * { visibility: visible; }
+      #snapshotArea { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animated"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
+
+  <div class="bg-heart">❤️</div>
+  <div class="bg-heart-2">💗</div>
+
+  <div class="bg-icons">
+    <span>🍎</span><span>🥑</span><span>🥗</span><span>🍇</span>
+    <span>❤️</span><span>🐟</span><span>🥕</span><span>🍊</span>
+    <span>🍓</span><span>🥦</span><span>🍋</span><span>🐠</span>
+    <span>🥝</span><span>🍉</span><span>🫀</span>
+  </div>
+  <div class="bg-particles">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>🍎 Calorie Tracker</h1>
+      <p class="subtitle">Goals • Alarms • Charts • Exercise</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="track">Track</button>
+      <button class="tab" data-tab="move">Move</button>
+      <button class="tab" data-tab="goal">Goal</button>
+      <button class="tab" data-tab="chart">Chart</button>
+    </div>
+
+    <!-- ========== TRACK PANEL ========== -->
+    <div class="panel active" id="panel-track">
+      <div class="date-nav">
+        <button id="prevDay">‹</button>
+        <div class="date-center">
+          <div class="date-label" id="dateLabel">Today</div>
+          <div class="date-sub" id="dateSub"></div>
+          <div class="date-input-wrap"><input type="date" id="datePicker"></div>
+        </div>
+        <button id="nextDay">›</button>
+      </div>
+
+      <div class="goal-card" id="goalCard">
+        <div class="goal-top">
+          <div><span class="goal-eaten" id="goalEaten">0</span> <span style="color:var(--muted);font-size:0.9rem">kcal</span></div>
+          <div class="goal-target">of <strong id="goalTarget">—</strong> goal</div>
+        </div>
+        <div class="goal-bar-wrap">
+          <div class="goal-bar-track" id="goalBarTrack">
+            <div class="goal-bar-fill" id="progressFill" style="width:0%"></div>
+            <div class="goal-bar-pct" id="goalBarPct">0%</div>
+          </div>
+        </div>
+        <div class="goal-meta">
+          <span>Left: <strong id="goalLeft">—</strong></span>
+          <span id="goalPct">0%</span>
+          <span>Active: <strong id="goalActive">0</strong></span>
+        </div>
+        <div class="alert-banner" id="alertBanner"></div>
+      </div>
+
+      <div class="totals">
+        <div class="total-box cal">
+          <div class="total-label">Calories</div>
+          <div class="total-value" id="totalCal">0</div>
+          <div class="total-unit">kcal</div>
+        </div>
+        <div class="total-box na" id="naBox">
+          <div class="total-fill" id="naFill"></div>
+          <div class="total-label">Sodium</div>
+          <div class="total-value" id="totalNa">0</div>
+          <div class="total-unit">mg <span id="naPct" style="font-size:0.55rem;color:var(--muted)"></span></div>
+        </div>
+        <div class="total-box chol" id="cholBox">
+          <div class="total-fill" id="cholFill"></div>
+          <div class="total-label">Cholesterol</div>
+          <div class="total-value" id="totalChol">0</div>
+          <div class="total-unit">mg <span id="cholPct" style="font-size:0.55rem;color:var(--muted)"></span></div>
+        </div>
+      </div>
+
+      <div class="add-card">
+        <div class="form-group">
+          <label>Search Food</label>
+          <div class="search-wrap">
+            <input type="text" id="foodSearch" placeholder="Type to search…" autocomplete="off">
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Select Food</label>
+          <select id="foodSelect"><option value="">— All foods —</option></select>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label>Weight (g)</label>
+            <input type="number" id="weight" placeholder="100" min="1" step="1" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label>Quick</label>
+            <select id="quickWeight">
+              <option value="">Custom</option>
+              <option value="50">50 g</option>
+              <option value="100">100 g</option>
+              <option value="150">150 g</option>
+              <option value="200">200 g</option>
+              <option value="250">250 g</option>
+            </select>
+          </div>
+        </div>
+        <div class="preview" id="preview">
+          Will add: <strong id="prevCal">0</strong> kcal ·
+          <span style="color:#60a5fa" id="prevNa">0</span> mg Na ·
+          <span style="color:#fbbf24" id="prevChol">0</span> mg Chol
+        </div>
+        <button class="btn-add" id="addBtn">+ Add to This Day</button>
+      </div>
+
+      <div class="log-card">
+        <div class="log-header">
+          <div>Food</div>
+          <div style="text-align:right">Cal</div>
+          <div style="text-align:right">Na</div>
+          <div></div>
+        </div>
+        <div class="log-list" id="logList"></div>
+      </div>
+
+      <div class="actions-3">
+        <button class="btn-export" id="exportBtn">Export</button>
+        <button class="btn-save-day" id="saveDayBtn">Save Day</button>
+        <button class="btn-danger" id="clearBtn">Clear</button>
+      </div>
+      <button class="btn-secondary" id="saveAsBtn" style="margin-bottom:8px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff">💾 Save As HTML</button>
+      <label class="btn-secondary" style="display:block;text-align:center;margin-bottom:8px;cursor:pointer">
+        📂 Restore
+        <input type="file" id="restoreFile" accept=".json,application/json" style="display:none">
+      </label>
+
+      <div class="history-card" style="margin-top:8px">
+        <div class="history-title">📅 All Days (tap to open)</div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- ========== MOVE PANEL ========== -->
+    <div class="panel" id="panel-move">
+      <div class="exercise-card">
+        <h3 style="margin-bottom:8px;font-size:1rem">🔥 Activity & Exercise</h3>
+
+        <div class="burn-bar-wrap">
+          <div class="burn-bar-header">
+            <span class="bb-value" id="burnBarValue">0 kcal</span>
+            <span class="bb-target">of <strong id="burnBarTarget">200</strong> target</span>
+          </div>
+          <div class="burn-bar-track" id="burnBarTrack">
+            <div class="burn-bar-fill" id="burnBarFill" style="width:0%"></div>
+            <div class="burn-bar-pct" id="burnBarPct">0%</div>
+            <div class="burn-bar-overflow" id="burnBarOverflow" style="display:none">+0 kcal</div>
+          </div>
+        </div>
+
+        <div class="burn-summary">
+          <div class="burn-box">
+            <div class="bl">Timer Burn</div>
+            <div class="bv" id="summaryTimer">0</div>
+            <div class="bu">kcal from timer</div>
+          </div>
+          <div class="burn-box">
+            <div class="bl">Manual Active</div>
+            <div class="bv" id="summaryManual">0</div>
+            <div class="bu">kcal added manually</div>
+          </div>
+        </div>
+        <div class="burn-summary" style="grid-template-columns:1fr">
+          <div class="burn-box" style="background:rgba(34,197,94,0.15);border-color:#22c55e">
+            <div class="bl">Total Burn Today</div>
+            <div class="bv" id="summaryTotal" style="color:#22c55e;font-size:1.4rem">0</div>
+            <div class="bu">kcal (both methods combined)</div>
+          </div>
+        </div>
+
+        <div class="target-display">
+          <span>Today's target: <strong id="exerciseTarget">200</strong> kcal</span>
+          <span style="font-size:0.7rem;color:var(--muted)">Adjust in Goal tab</span>
+        </div>
+
+        <div class="manual-active-card">
+          <label style="margin-bottom:6px">➕ Add manual active kcal (walked, housework, etc.)</label>
+          <div class="manual-active-row">
+            <input type="number" id="manualActiveInput" placeholder="e.g. 80" min="0" step="5" inputmode="numeric">
+            <button class="btn-secondary" id="addManualActive" style="padding:11px;font-size:0.85rem">Add</button>
+            <button class="btn-reset-sm" id="resetManualActive" style="padding:11px;font-size:0.85rem">Reset</button>
+          </div>
+          <p class="note" style="margin-top:6px;text-align:left">
+            Current manual total today: <strong id="manualCurrentDisplay" style="color:#4ade80">0</strong> kcal ·
+            Reset clears all manual entries for this day.
+          </p>
+        </div>
+
+        <div class="selected-banner" id="selectedBanner">
+          <div class="sb-name" id="sbName">—</div>
+          <div class="sb-meta" id="sbMeta">—</div>
+        </div>
+
+        <div class="timer-card" style="background:rgba(15,30,61,0.7);padding:10px;border-radius:12px;margin-bottom:10px;border:1px solid var(--border)">
+          <div class="timer-display" id="timerDisplay">00:00</div>
+          <div class="row-2">
+            <button class="btn-add" id="startTimer" style="padding:10px">▶ Start</button>
+            <button class="btn-secondary" id="resetTimer" style="padding:10px">■ Reset & Log</button>
+          </div>
+        </div>
+
+        <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">
+          Activities — each row fills as you log time
+        </div>
+        <div class="exercise-list" id="exerciseList"></div>
+      </div>
+    </div>
+
+    <!-- ========== GOAL PANEL ========== -->
+    <div class="panel" id="panel-goal">
+      <div class="profile-card">
+        <h3 style="margin-bottom:12px;font-size:1.05rem">Your Profile</h3>
+        <div class="form-group">
+          <label>Sex</label>
+          <div class="sex-btns">
+            <button type="button" class="sex-btn" data-sex="male" id="sexMale">Male</button>
+            <button type="button" class="sex-btn" data-sex="female" id="sexFemale">Female</button>
+          </div>
+        </div>
+        <div class="row-3">
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="profAge" placeholder="30" min="10" max="120" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" id="profWeight" placeholder="70" min="30" max="300" step="0.1" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label>Height (cm)</label>
+            <input type="number" id="profHeight" placeholder="170" min="100" max="250" inputmode="numeric">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Activity Level</label>
+          <select id="profActivity">
+            <option value="1.2">Sedentary (little/no exercise)</option>
+            <option value="1.375">Light (1–3 days/week)</option>
+            <option value="1.55" selected>Moderate (3–5 days/week)</option>
+            <option value="1.725">Active (6–7 days/week)</option>
+            <option value="1.9">Very active (hard exercise)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Goal</label>
+          <select id="profGoal">
+            <option value="0">Maintain weight</option>
+            <option value="-500">Lose ~0.5 kg/week</option>
+            <option value="-250">Lose slow</option>
+            <option value="250">Gain slow</option>
+            <option value="500">Gain ~0.5 kg/week</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Daily Exercise Target (kcal)</label>
+          <input type="number" id="profExerciseTarget" placeholder="200" min="50" max="1000" step="10" inputmode="numeric">
+        </div>
+        <button class="btn-add" id="saveProfile">Calculate & Save Goal</button>
+        <div class="bmr-result" id="bmrResult" style="display:none">
+          <div style="font-size:0.8rem;color:var(--muted)">Daily calorie goal</div>
+          <div class="big" id="bmrValue">0</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px" id="bmrDetail"></div>
+        </div>
+      </div>
+      <p class="note">Uses Mifflin–St Jeor formula. Alarms trigger at 80%, 90% and 100% of this goal.</p>
+    </div>
+
+    <!-- ========== CHART PANEL ========== -->
+    <div class="panel" id="panel-chart">
+      <div class="chart-card">
+        <h3 style="margin-bottom:8px;font-size:1rem">Today’s foods (kcal)</h3>
+        <div class="hist-bars" id="histToday"></div>
+        <p class="note" id="histTodayEmpty" style="display:none">No food logged today</p>
+      </div>
+      <div class="chart-card">
+        <h3 style="margin-bottom:8px;font-size:1rem">Last 7 days — food kcal + burn kcal</h3>
+        <div class="hist-bars" id="histWeek"></div>
+        <p class="note" style="margin-top:6px">Green bars = food intake · Blue bars = total burn (timer + manual)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal">
+      <h3>Export Data</h3>
+      <div class="export-options">
+        <button class="export-opt" data-range="day">This Day only<small id="expDayLabel">—</small></button>
+        <button class="export-opt" data-range="week">Last 7 days<small>Current + 6 previous</small></button>
+        <button class="export-opt" data-range="month">This Month<small id="expMonthLabel">—</small></button>
+        <button class="export-opt" data-range="all">Everything<small>Full history</small></button>
+      </div>
+      <div style="margin-bottom:8px">
+        <label style="margin-bottom:6px">Custom range</label>
+        <div class="range-row">
+          <input type="date" id="exportFrom">
+          <input type="date" id="exportTo">
+        </div>
+        <button class="btn-secondary" id="exportCustom" style="margin-bottom:10px">Export Custom</button>
+      </div>
+      <button class="btn-secondary" id="closeModal">Cancel</button>
+    </div>
+  </div>
+
+  <div id="snapshotArea" style="display:none"></div>
+  <div class="toast" id="toast">Saved!</div>
+
+  <script>
+    const FOODS = [
+      {"name":"Apple","cal":0.52,"na":0.01,"chol":0},
+      {"name":"Apricot","cal":0.48,"na":0.01,"chol":0},
+      {"name":"Avocado","cal":1.60,"na":0.07,"chol":0},
+      {"name":"Banana","cal":0.89,"na":0.01,"chol":0},
+      {"name":"Cantaloupe / Melon","cal":0.34,"na":0.16,"chol":0},
+      {"name":"Cherry","cal":0.63,"na":0.00,"chol":0},
+      {"name":"Dates (fresh)","cal":2.82,"na":0.02,"chol":0},
+      {"name":"Fig (fresh)","cal":0.74,"na":0.01,"chol":0},
+      {"name":"Fig (dried)","cal":2.49,"na":0.10,"chol":0},
+      {"name":"Grape","cal":0.69,"na":0.02,"chol":0},
+      {"name":"Grapefruit","cal":0.42,"na":0.01,"chol":0},
+      {"name":"Guava","cal":0.68,"na":0.02,"chol":0},
+      {"name":"Honeydew Melon","cal":0.36,"na":0.18,"chol":0},
+      {"name":"Kiwi","cal":0.61,"na":0.03,"chol":0},
+      {"name":"Lemon","cal":0.29,"na":0.02,"chol":0},
+      {"name":"Lime","cal":0.30,"na":0.02,"chol":0},
+      {"name":"Loquat","cal":0.47,"na":0.01,"chol":0},
+      {"name":"Mango","cal":0.60,"na":0.01,"chol":0},
+      {"name":"Mandarin / Clementine","cal":0.47,"na":0.01,"chol":0},
+      {"name":"Mulberry","cal":0.43,"na":0.10,"chol":0},
+      {"name":"Orange","cal":0.47,"na":0.00,"chol":0},
+      {"name":"Peach","cal":0.39,"na":0.00,"chol":0},
+      {"name":"Pear","cal":0.57,"na":0.01,"chol":0},
+      {"name":"Persimmon","cal":0.70,"na":0.01,"chol":0},
+      {"name":"Plum","cal":0.46,"na":0.00,"chol":0},
+      {"name":"Pomegranate","cal":0.83,"na":0.03,"chol":0},
+      {"name":"Pomelo","cal":0.38,"na":0.01,"chol":0},
+      {"name":"Quince","cal":0.57,"na":0.04,"chol":0},
+      {"name":"Strawberry","cal":0.32,"na":0.01,"chol":0},
+      {"name":"Watermelon","cal":0.30,"na":0.01,"chol":0},
+      {"name":"Broccoli","cal":0.34,"na":0.33,"chol":0},
+      {"name":"Carrots","cal":0.41,"na":0.69,"chol":0},
+      {"name":"Cauliflower","cal":0.25,"na":0.30,"chol":0},
+      {"name":"Courgette (Zucchini)","cal":0.17,"na":0.08,"chol":0},
+      {"name":"Cucumber","cal":0.15,"na":0.02,"chol":0},
+      {"name":"Eggplant (grilled)","cal":0.35,"na":0.05,"chol":0},
+      {"name":"Green Beans","cal":0.31,"na":0.06,"chol":0},
+      {"name":"Green Peas","cal":0.81,"na":0.05,"chol":0},
+      {"name":"Mushroom","cal":0.22,"na":0.05,"chol":0},
+      {"name":"Okra (Bamia) cooked","cal":0.33,"na":0.40,"chol":0},
+      {"name":"Onion","cal":0.40,"na":0.04,"chol":0},
+      {"name":"Potato (boiled)","cal":0.87,"na":0.05,"chol":0},
+      {"name":"Red Cabbage","cal":0.31,"na":0.27,"chol":0},
+      {"name":"Spring Onion","cal":0.32,"na":0.16,"chol":0},
+      {"name":"Sweet Potato","cal":0.86,"na":0.55,"chol":0},
+      {"name":"Tomato","cal":0.18,"na":0.05,"chol":0},
+      {"name":"Spinach (cooked)","cal":0.23,"na":0.70,"chol":0},
+      {"name":"Lettuce","cal":0.15,"na":0.28,"chol":0},
+      {"name":"Parsley","cal":0.36,"na":0.56,"chol":0},
+      {"name":"Mint (fresh)","cal":0.70,"na":0.31,"chol":0},
+      {"name":"Turnip","cal":0.28,"na":0.67,"chol":0},
+      {"name":"Beetroot","cal":0.43,"na":0.78,"chol":0},
+      {"name":"Artichoke","cal":0.47,"na":0.94,"chol":0},
+      {"name":"Leek","cal":0.61,"na":0.20,"chol":0},
+      {"name":"Bell Pepper (red)","cal":0.31,"na":0.04,"chol":0},
+      {"name":"Bell Pepper (green)","cal":0.20,"na":0.03,"chol":0},
+      {"name":"Garlic","cal":1.49,"na":0.17,"chol":0},
+      {"name":"Ginger","cal":0.80,"na":0.13,"chol":0},
+      {"name":"Radish","cal":0.16,"na":0.39,"chol":0},
+      {"name":"Celery","cal":0.16,"na":0.80,"chol":0},
+      {"name":"Almonds","cal":5.79,"na":0.01,"chol":0},
+      {"name":"Cashews","cal":5.53,"na":0.12,"chol":0},
+      {"name":"Hazelnuts","cal":6.28,"na":0.00,"chol":0},
+      {"name":"Peanuts","cal":5.67,"na":0.18,"chol":0},
+      {"name":"Pine Nuts","cal":6.73,"na":0.02,"chol":0},
+      {"name":"Pistachio (raw)","cal":5.60,"na":0.01,"chol":0},
+      {"name":"Pumpkin Seeds","cal":5.59,"na":0.07,"chol":0},
+      {"name":"Sesame Seeds","cal":5.73,"na":0.11,"chol":0},
+      {"name":"Sunflower Seeds","cal":5.84,"na":0.09,"chol":0},
+      {"name":"Walnuts","cal":6.54,"na":0.02,"chol":0},
+      {"name":"Chia Seeds","cal":4.86,"na":0.16,"chol":0},
+      {"name":"Flaxseeds","cal":5.34,"na":0.30,"chol":0},
+      {"name":"Pecans","cal":6.91,"na":0.00,"chol":0},
+      {"name":"Macadamia","cal":7.18,"na":0.05,"chol":0},
+      {"name":"Brazil Nuts","cal":6.59,"na":0.03,"chol":0},
+      {"name":"Arabic Coffee (black)","cal":0.02,"na":0.05,"chol":0},
+      {"name":"Cream","cal":3.40,"na":0.40,"chol":1.10},
+      {"name":"Ice Cream (vanilla)","cal":2.07,"na":0.80,"chol":0.44},
+      {"name":"Ice Cream (chocolate)","cal":2.16,"na":0.76,"chol":0.34},
+      {"name":"Ice Cream (strawberry)","cal":1.92,"na":0.60,"chol":0.29},
+      {"name":"Jameed (dried yogurt, dry)","cal":3.50,"na":8.00,"chol":0.80},
+      {"name":"Labneh","cal":1.40,"na":2.00,"chol":0.25},
+      {"name":"Labneh with Olive Oil","cal":2.20,"na":2.20,"chol":0.25},
+      {"name":"Tea with Sugar (cup density)","cal":0.30,"na":0.05,"chol":0},
+      {"name":"White Cheese (Nabulsi-style)","cal":2.80,"na":6.50,"chol":0.70},
+      {"name":"Yogurt / Laban","cal":0.61,"na":0.46,"chol":0.13},
+      {"name":"Milk (full fat)","cal":0.64,"na":0.44,"chol":0.14},
+      {"name":"Milk (semi-skimmed)","cal":0.50,"na":0.44,"chol":0.07},
+      {"name":"Butter","cal":7.17,"na":0.11,"chol":2.15},
+      {"name":"Cheddar Cheese","cal":4.16,"na":6.80,"chol":1.05},
+      {"name":"Feta Cheese","cal":2.64,"na":9.17,"chol":0.89},
+      {"name":"Greek Yogurt","cal":0.97,"na":0.36,"chol":0.10},
+      {"name":"Kefir","cal":0.55,"na":0.40,"chol":0.13},
+      {"name":"Brown Bread","cal":2.50,"na":4.50,"chol":0},
+      {"name":"Bulgur (cooked)","cal":0.83,"na":0.05,"chol":0},
+      {"name":"Freekeh (cooked)","cal":1.10,"na":0.05,"chol":0},
+      {"name":"Pita Bread","cal":2.75,"na":5.30,"chol":0},
+      {"name":"Popcorn (air)","cal":3.87,"na":0.08,"chol":0},
+      {"name":"Rice (white, cooked)","cal":1.30,"na":0.01,"chol":0},
+      {"name":"Shrak / Markook Bread","cal":2.70,"na":4.80,"chol":0},
+      {"name":"White Bread","cal":2.65,"na":4.90,"chol":0},
+      {"name":"Oats (cooked)","cal":0.71,"na":0.04,"chol":0},
+      {"name":"Couscous (cooked)","cal":1.12,"na":0.05,"chol":0},
+      {"name":"Quinoa (cooked)","cal":1.20,"na":0.07,"chol":0},
+      {"name":"Barley (cooked)","cal":1.23,"na":0.03,"chol":0},
+      {"name":"Semolina (cooked)","cal":1.15,"na":0.02,"chol":0},
+      {"name":"Pasta (cooked)","cal":1.31,"na":0.03,"chol":0},
+      {"name":"Baguette","cal":2.70,"na":5.20,"chol":0},
+      {"name":"Beef Meat (cooked)","cal":2.50,"na":0.60,"chol":0.85},
+      {"name":"Chicken Breast (grilled)","cal":1.65,"na":0.74,"chol":0.85},
+      {"name":"Chicken Leg with Skin","cal":2.15,"na":0.90,"chol":1.20},
+      {"name":"Chicken Leg without Skin","cal":1.75,"na":0.90,"chol":1.10},
+      {"name":"Chicken Nuggets","cal":2.96,"na":5.50,"chol":0.50},
+      {"name":"Egg (whole)","cal":1.55,"na":1.24,"chol":3.72},
+      {"name":"Fried Chicken","cal":2.60,"na":0.85,"chol":0.90},
+      {"name":"Grilled Chicken","cal":1.65,"na":0.80,"chol":0.85},
+      {"name":"Grilled Fish","cal":1.30,"na":0.80,"chol":0.60},
+      {"name":"Grilled Lamb","cal":2.50,"na":0.70,"chol":0.90},
+      {"name":"Lamb Kebab","cal":2.50,"na":0.80,"chol":0.90},
+      {"name":"Lamb Leg","cal":2.50,"na":0.70,"chol":0.90},
+      {"name":"Lamb Meat","cal":2.80,"na":0.70,"chol":0.95},
+      {"name":"Lamb Shoulder","cal":2.60,"na":0.70,"chol":0.90},
+      {"name":"Roasted Lamb","cal":2.70,"na":0.70,"chol":0.95},
+      {"name":"Shawarma (meat only)","cal":2.20,"na":1.50,"chol":0.70},
+      {"name":"Turkey Breast","cal":1.35,"na":0.70,"chol":0.70},
+      {"name":"Beef Steak (grilled)","cal":2.71,"na":0.60,"chol":0.90},
+      {"name":"Chicken Shawarma","cal":2.10,"na":1.40,"chol":0.65},
+      {"name":"Kofta (grilled)","cal":2.45,"na":1.20,"chol":0.85},
+      {"name":"Chickpeas (cooked)","cal":1.64,"na":0.07,"chol":0},
+      {"name":"Lentils (cooked)","cal":1.16,"na":0.05,"chol":0},
+      {"name":"Lentil Soup","cal":0.70,"na":2.50,"chol":0},
+      {"name":"White Bean (cooked)","cal":1.27,"na":0.05,"chol":0},
+      {"name":"Fava Beans (cooked)","cal":1.10,"na":0.05,"chol":0},
+      {"name":"Kidney Beans (cooked)","cal":1.27,"na":0.05,"chol":0},
+      {"name":"Black Beans (cooked)","cal":1.32,"na":0.05,"chol":0},
+      {"name":"Green Lentils (cooked)","cal":1.16,"na":0.02,"chol":0},
+      {"name":"Baba Ghanoush","cal":1.60,"na":3.00,"chol":0},
+      {"name":"Baklava","cal":4.20,"na":1.20,"chol":0.20},
+      {"name":"Falafel (fried)","cal":3.33,"na":4.00,"chol":0},
+      {"name":"Fattoush","cal":1.00,"na":2.50,"chol":0},
+      {"name":"Foul Mudammas","cal":1.15,"na":2.80,"chol":0},
+      {"name":"Fried Potatoes","cal":3.12,"na":2.10,"chol":0},
+      {"name":"Galayet Bandora","cal":0.80,"na":2.50,"chol":0},
+      {"name":"Halawa / Halva","cal":5.00,"na":0.50,"chol":0},
+      {"name":"Hummus","cal":1.66,"na":3.80,"chol":0},
+      {"name":"Kibbeh (fried)","cal":2.80,"na":3.20,"chol":0.40},
+      {"name":"Kibbeh (raw / nayyeh)","cal":2.20,"na":2.50,"chol":0.50},
+      {"name":"Kunafa / Knafeh","cal":3.50,"na":1.50,"chol":0.40},
+      {"name":"Maamoul (date)","cal":4.20,"na":0.80,"chol":0.10},
+      {"name":"Makdous (stuffed eggplant)","cal":1.80,"na":4.00,"chol":0},
+      {"name":"Manakish Cheese","cal":3.10,"na":5.50,"chol":0.40},
+      {"name":"Manakish Zaatar","cal":2.90,"na":5.00,"chol":0},
+      {"name":"Mansaf (typical plate density)","cal":2.40,"na":3.50,"chol":0.50},
+      {"name":"Maqluba","cal":1.90,"na":2.80,"chol":0.35},
+      {"name":"Molokhia","cal":0.55,"na":2.00,"chol":0.10},
+      {"name":"Mujaddara (lentils + rice)","cal":1.40,"na":1.50,"chol":0},
+      {"name":"Musakhan","cal":2.50,"na":3.00,"chol":0.40},
+      {"name":"Olive","cal":1.15,"na":7.30,"chol":0},
+      {"name":"Olive Oil","cal":8.84,"na":0.02,"chol":0},
+      {"name":"Samosa","cal":2.60,"na":3.50,"chol":0.20},
+      {"name":"Tabbouleh","cal":0.90,"na":1.80,"chol":0},
+      {"name":"Tahini","cal":5.95,"na":0.15,"chol":0},
+      {"name":"Warak Enab (Stuffed Grape Leaves)","cal":1.90,"na":3.50,"chol":0.15},
+      {"name":"Shakshuka","cal":1.10,"na":2.20,"chol":0.85},
+      {"name":"Muhammara","cal":2.20,"na":3.00,"chol":0},
+      {"name":"Zaatar Mix","cal":4.50,"na":0.50,"chol":0},
+      {"name":"Sumac","cal":2.50,"na":0.10,"chol":0},
+      {"name":"Freekeh Soup","cal":0.60,"na":1.80,"chol":0},
+      {"name":"Maftoul (Palestinian couscous)","cal":1.50,"na":1.20,"chol":0},
+      {"name":"Musakhan Roll","cal":2.60,"na":2.80,"chol":0.45},
+      {"name":"Knafeh Nabulsiyeh","cal":3.60,"na":1.60,"chol":0.45},
+      {"name":"Qatayef","cal":3.20,"na":0.90,"chol":0.30},
+      {"name":"Basbousa","cal":3.80,"na":0.70,"chol":0.20},
+      {"name":"Awameh","cal":3.50,"na":0.40,"chol":0},
+      {"name":"Hareeseh","cal":2.20,"na":2.50,"chol":0.40},
+      {"name":"Kofta bi Tahini","cal":2.30,"na":3.00,"chol":0.70},
+      {"name":"Sayadieh","cal":1.60,"na":2.20,"chol":0.55},
+      {"name":"Mloukhieh with Chicken","cal":0.90,"na":2.30,"chol":0.30},
+      {"name":"Shepherd's Pie","cal":1.55,"na":3.20,"chol":0.45},
+      {"name":"Fish and Chips","cal":2.40,"na":3.80,"chol":0.35},
+      {"name":"Bangers and Mash","cal":1.80,"na":3.50,"chol":0.55},
+      {"name":"Full English Breakfast","cal":2.10,"na":4.20,"chol":1.10},
+      {"name":"Sunday Roast (beef)","cal":1.90,"na":2.80,"chol":0.65},
+      {"name":"Cornish Pasty","cal":2.70,"na":3.60,"chol":0.40},
+      {"name":"Yorkshire Pudding","cal":2.20,"na":1.80,"chol":0.85},
+      {"name":"Cottage Pie","cal":1.50,"na":3.00,"chol":0.45},
+      {"name":"Toad in the Hole","cal":2.10,"na":2.90,"chol":0.70},
+      {"name":"Ploughman's Lunch","cal":2.30,"na":4.50,"chol":0.60},
+      {"name":"Scones","cal":3.50,"na":1.20,"chol":0.50},
+      {"name":"Crumpets","cal":1.80,"na":2.20,"chol":0.10},
+      {"name":"Pizza Margherita","cal":2.50,"na":4.80,"chol":0.35},
+      {"name":"Risotto","cal":1.60,"na":2.20,"chol":0.25},
+      {"name":"Paella (seafood)","cal":1.55,"na":3.50,"chol":0.55},
+      {"name":"Goulash","cal":1.40,"na":2.80,"chol":0.50},
+      {"name":"Schnitzel","cal":2.50,"na":2.60,"chol":0.75},
+      {"name":"Ratatouille","cal":0.70,"na":1.50,"chol":0},
+      {"name":"Quiche Lorraine","cal":2.60,"na":3.20,"chol":1.20},
+      {"name":"Croissant","cal":4.06,"na":3.50,"chol":0.45},
+      {"name":"Brie Cheese","cal":3.34,"na":6.30,"chol":1.00},
+      {"name":"Gouda Cheese","cal":3.56,"na":8.20,"chol":1.14},
+      {"name":"Parmesan","cal":4.31,"na":16.00,"chol":0.88},
+      {"name":"Mozzarella","cal":2.80,"na":6.20,"chol":0.79}
+    ];
+
+    const EXERCISES = [
+      {name:"Running (10 km/h)", met:10.0, desc:"Vigorous"},
+      {name:"Jumping Jacks", met:8.0, desc:"Vigorous"},
+      {name:"Pull-ups", met:8.0, desc:"Vigorous"},
+      {name:"Running (8 km/h)", met:8.0, desc:"Vigorous"},
+      {name:"Push-ups (vigorous)", met:7.5, desc:"Vigorous"},
+      {name:"Jump Rope", met:7.0, desc:"Vigorous"},
+      {name:"Jogging (general)", met:7.0, desc:"Vigorous"},
+      {name:"Cycling (moderate)", met:6.8, desc:"Vigorous"},
+      {name:"Squats (high intensity)", met:6.5, desc:"Vigorous"},
+      {name:"Weight Lifting (vigorous)", met:6.0, desc:"Vigorous"},
+      {name:"Swimming (leisure)", met:6.0, desc:"Vigorous"},
+      {name:"Walking (6.4 km/h)", met:5.0, desc:"Moderate"},
+      {name:"Climbing Stairs", met:5.0, desc:"Moderate"},
+      {name:"Hiking / Hill Walking", met:5.0, desc:"Moderate"},
+      {name:"Calisthenics (moderate)", met:3.8, desc:"Moderate"},
+      {name:"Bodyweight Exercises", met:3.5, desc:"Moderate"},
+      {name:"Weight Lifting (moderate)", met:3.5, desc:"Moderate"},
+      {name:"Walking (5.6 km/h)", met:3.5, desc:"Moderate"},
+      {name:"Tai Chi / Yoga", met:3.0, desc:"Moderate"},
+      {name:"Walking (4.8 km/h)", met:3.0, desc:"Moderate"},
+      {name:"Gardening", met:3.0, desc:"Moderate"},
+      {name:"Abdominal Crunches", met:2.8, desc:"Light"},
+      {name:"Light Housework", met:2.5, desc:"Light"},
+      {name:"Walking (3.2 km/h)", met:2.3, desc:"Light"},
+      {name:"Standing", met:2.0, desc:"Light"}
+    ];
+
+    const STORAGE_KEY = 'calorie_tracker_v12';
+    const PROFILE_KEY = 'calorie_profile_v8';
+    const ACTIVE_KEY = 'calorie_active_v8';
+    const ALERT_KEY = 'calorie_alerts_v8';
+    const EXERCISE_LOG_KEY = 'calorie_exercise_v7';
+
+    const NA_LIMIT = 2000;
+    const CHOL_LIMIT = 300;
+
+    let allData = {};
+    let profile = { sex: 'male', age: 30, weight: 70, height: 170, activity: 1.55, goalAdj: 0, dailyGoal: 0, exerciseTarget: 200 };
+    let activeByDay = {};
+    let alertsFired = {};
+    let exerciseLog = {};
+    let currentDate = todayISO();
+
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let timerRunning = false;
+    let selectedExercise = null;
+    let selectedIndex = -1;
+    let lastOverflowTier = 0;
+
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function formatDateLabel(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      const today = todayISO();
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      if (iso === today) return 'Today';
+      if (iso === y.toISOString().slice(0, 10)) return 'Yesterday';
+      return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    function formatDateFull(iso) {
+      return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+    function shiftDate(iso, days) {
+      const d = new Date(iso + 'T12:00:00');
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (type ? ' ' + type : '');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+    function load() {
+      try { allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { allData = {}; }
+      try { profile = Object.assign(profile, JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}')); } catch(e) {}
+      try { activeByDay = JSON.parse(localStorage.getItem(ACTIVE_KEY) || '{}'); } catch(e) { activeByDay = {}; }
+      try { alertsFired = JSON.parse(localStorage.getItem(ALERT_KEY) || '{}'); } catch(e) { alertsFired = {}; }
+      try { exerciseLog = JSON.parse(localStorage.getItem(EXERCISE_LOG_KEY) || '{}'); } catch(e) { exerciseLog = {}; }
+    }
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); }
+    function saveProfile() { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }
+    function saveActive() { localStorage.setItem(ACTIVE_KEY, JSON.stringify(activeByDay)); }
+    function saveAlerts() { localStorage.setItem(ALERT_KEY, JSON.stringify(alertsFired)); }
+    function saveExerciseLog() { localStorage.setItem(EXERCISE_LOG_KEY, JSON.stringify(exerciseLog)); }
+
+    function getDayEntries() { return allData[currentDate] || []; }
+    function setDayEntries(entries) {
+      if (!entries.length) delete allData[currentDate];
+      else allData[currentDate] = entries;
+      saveData();
+      showToast('Saved ✓');
+    }
+    function calc(food, grams) {
+      return {
+        cal: +(food.cal * grams).toFixed(1),
+        na: +(food.na * grams).toFixed(1),
+        chol: +(food.chol * grams).toFixed(1)
+      };
+    }
+    function escapeHtml(t) {
+      const d = document.createElement('div');
+      d.textContent = t;
+      return d.innerHTML;
+    }
+    function dayTotalCal(date) {
+      return (allData[date] || []).reduce((s, e) => s + e.cal, 0);
+    }
+    function getManualActive(date) { return Number(activeByDay[date] || 0); }
+    function getTimerBurn(date) {
+      return (exerciseLog[date] || []).reduce((s, e) => s + e.kcal, 0);
+    }
+    function getExerciseBurnByName(date, name) {
+      return (exerciseLog[date] || [])
+        .filter(e => e.name === name)
+        .reduce((s, e) => s + e.kcal, 0);
+    }
+    function getExerciseMinutesByName(date, name) {
+      return (exerciseLog[date] || [])
+        .filter(e => e.name === name)
+        .reduce((s, e) => s + e.minutes, 0);
+    }
+    function getTotalBurn(date) {
+      return getManualActive(date) + getTimerBurn(date);
+    }
+    function effectiveGoal() {
+      return Math.max(0, (profile.dailyGoal || 0) + getTotalBurn(currentDate));
+    }
+    function calcExerciseKcal(met, minutes, weightKg) {
+      return +(minutes * (met * 3.5 * weightKg) / 200).toFixed(1);
+    }
+
+    let audioCtx = null;
+    function ensureAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function beep(freq, duration, volume, type) {
+      ensureAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.stop(audioCtx.currentTime + duration);
+    }
+    function alarm80() { beep(660, 0.25, 0.25); setTimeout(() => beep(660, 0.25, 0.25), 300); }
+    function alarm90() {
+      beep(880, 0.3, 0.35, 'square');
+      setTimeout(() => beep(880, 0.3, 0.35, 'square'), 280);
+      setTimeout(() => beep(880, 0.35, 0.35, 'square'), 560);
+    }
+    function alarm100() {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          beep(1000, 0.2, 0.45, 'sawtooth');
+          setTimeout(() => beep(700, 0.2, 0.4, 'sawtooth'), 150);
+        }, i * 400);
+      }
+      document.body.classList.add('flash-red');
+      setTimeout(() => document.body.classList.remove('flash-red'), 3000);
+    }
+
+    function triumphChime() {
+      ensureAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          beep(freq, 0.35, 0.35, 'sine');
+          setTimeout(() => beep(freq * 1.5, 0.25, 0.18, 'triangle'), 90);
+        }, i * 130);
+      });
+      setTimeout(() => {
+        beep(1567.98, 0.5, 0.28, 'sine');
+        beep(2093.00, 0.5, 0.2, 'triangle');
+      }, 780);
+    }
+
+    function checkAlerts(eaten, goal) {
+      if (!goal || goal <= 0) return;
+      const pct = (eaten / goal) * 100;
+      const key = currentDate;
+      if (!alertsFired[key]) alertsFired[key] = {};
+      const banner = document.getElementById('alertBanner');
+      banner.className = 'alert-banner';
+      if (pct >= 100) {
+        banner.classList.add('show100');
+        banner.textContent = '⚠️ 100% — Daily limit reached!';
+        if (!alertsFired[key].a100) {
+          alertsFired[key].a100 = true; alarm100();
+          showToast('100% of daily goal!', 'danger'); saveAlerts();
+        }
+      } else if (pct >= 90) {
+        banner.classList.add('show90');
+        banner.textContent = '⚠️ 90% — Almost at limit';
+        if (!alertsFired[key].a90) {
+          alertsFired[key].a90 = true; alarm90();
+          showToast('90% of daily goal', 'danger'); saveAlerts();
+        }
+      } else if (pct >= 80) {
+        banner.classList.add('show80');
+        banner.textContent = '⚡ 80% of daily goal reached';
+        if (!alertsFired[key].a80) {
+          alertsFired[key].a80 = true; alarm80();
+          showToast('80% of daily goal', 'warning'); saveAlerts();
+        }
+      }
+    }
+
+    function calcBMR() {
+      const { sex, age, weight, height, activity, goalAdj } = profile;
+      let bmr = sex === 'male'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+      const tdee = Math.round(bmr * Number(activity));
+      const goal = Math.round(tdee + Number(goalAdj || 0));
+      profile.dailyGoal = Math.max(1000, goal);
+      return { bmr: Math.round(bmr), tdee, goal: profile.dailyGoal };
+    }
+
+    function fillProfileForm() {
+      document.getElementById('profAge').value = profile.age || '';
+      document.getElementById('profWeight').value = profile.weight || '';
+      document.getElementById('profHeight').value = profile.height || '';
+      document.getElementById('profActivity').value = String(profile.activity || 1.55);
+      document.getElementById('profGoal').value = String(profile.goalAdj || 0);
+      document.getElementById('profExerciseTarget').value = profile.exerciseTarget || 200;
+      document.querySelectorAll('.sex-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.sex === profile.sex);
+      });
+      if (profile.dailyGoal) {
+        const r = calcBMR();
+        document.getElementById('bmrResult').style.display = 'block';
+        document.getElementById('bmrValue').textContent = r.goal + ' kcal';
+        document.getElementById('bmrDetail').textContent =
+          `BMR ${r.bmr} × activity = TDEE ${r.tdee}` + (profile.goalAdj ? ` (${profile.goalAdj > 0 ? '+' : ''}${profile.goalAdj} goal adj)` : '');
+      }
+    }
+
+    function updateDateUI() {
+      document.getElementById('dateLabel').textContent = formatDateLabel(currentDate);
+      document.getElementById('dateSub').textContent = formatDateFull(currentDate);
+      document.getElementById('datePicker').value = currentDate;
+    }
+    function populateSelect(filter = '') {
+      const sel = document.getElementById('foodSelect');
+      const q = filter.toLowerCase().trim();
+      let list = q ? FOODS.filter(f => f.name.toLowerCase().includes(q)) : FOODS.slice();
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      const label = q ? `— ${list.length} match${list.length===1?'':'es'} —` : `— All foods (${FOODS.length}) —`;
+      sel.innerHTML = `<option value="">${label}</option>` +
+        list.map(f => `<option value="${FOODS.indexOf(f)}">${f.name} (${f.cal} kcal/g)</option>`).join('');
+    }
+    function updatePreview() {
+      const idx = document.getElementById('foodSelect').value;
+      const grams = parseFloat(document.getElementById('weight').value);
+      const preview = document.getElementById('preview');
+      if (idx === '' || isNaN(grams) || grams <= 0) { preview.classList.remove('show'); return; }
+      const r = calc(FOODS[idx], grams);
+      document.getElementById('prevCal').textContent = r.cal;
+      document.getElementById('prevNa').textContent = r.na;
+      document.getElementById('prevChol').textContent = r.chol;
+      preview.classList.add('show');
+    }
+    function renderLog() {
+      const entries = getDayEntries();
+      const list = document.getElementById('logList');
+      let totalCal = 0, totalNa = 0, totalChol = 0;
+      if (!entries.length) {
+        list.innerHTML = `<div class="empty"><div class="icon">🥗</div><p>No food this day</p></div>`;
+      } else {
+        list.innerHTML = [...entries].reverse().map(e => `
+          <div class="log-row">
+            <div><div class="food-name">${escapeHtml(e.name)}</div><div class="food-weight">${e.grams} g</div></div>
+            <div class="val-cal">${e.cal}</div>
+            <div class="val-na">${e.na}</div>
+            <div style="text-align:right"><button class="delete-btn" data-id="${e.id}">×</button></div>
+          </div>`).join('');
+        list.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setDayEntries(getDayEntries().filter(x => x.id !== Number(btn.dataset.id)));
+            render();
+          });
+        });
+      }
+      entries.forEach(e => { totalCal += e.cal; totalNa += e.na; totalChol += e.chol; });
+      document.getElementById('totalCal').textContent = Math.round(totalCal);
+      document.getElementById('totalNa').textContent = Math.round(totalNa);
+      document.getElementById('totalChol').textContent = totalChol.toFixed(1);
+
+      // Sodium fill
+      const naPct = Math.min(150, (totalNa / NA_LIMIT) * 100);
+      const naFill = document.getElementById('naFill');
+      const naBox = document.getElementById('naBox');
+      const naPctLabel = document.getElementById('naPct');
+      if (naFill) {
+        naFill.style.width = Math.min(100, naPct) + '%';
+        naFill.className = 'total-fill na-fill';
+        naBox.classList.remove('near-limit', 'over-limit');
+        if (naPct >= 100) {
+          naFill.classList.add('danger');
+          naBox.classList.add('over-limit');
+        } else if (naPct >= 75) {
+          naFill.classList.add('warn');
+          naBox.classList.add('near-limit');
+        }
+        naPctLabel.textContent = '· ' + Math.round(naPct) + '%';
+      }
+
+      // Cholesterol fill
+      const cholPct = Math.min(150, (totalChol / CHOL_LIMIT) * 100);
+      const cholFill = document.getElementById('cholFill');
+      const cholBox = document.getElementById('cholBox');
+      const cholPctLabel = document.getElementById('cholPct');
+      if (cholFill) {
+        cholFill.style.width = Math.min(100, cholPct) + '%';
+        cholFill.className = 'total-fill chol-fill';
+        cholBox.classList.remove('near-limit', 'over-limit');
+        if (cholPct >= 100) {
+          cholFill.classList.add('danger');
+          cholBox.classList.add('over-limit');
+        } else if (cholPct >= 75) {
+          cholFill.classList.add('warn');
+          cholBox.classList.add('near-limit');
+        }
+        cholPctLabel.textContent = '· ' + Math.round(cholPct) + '%';
+      }
+
+      const goal = effectiveGoal();
+      const totalBurn = getTotalBurn(currentDate);
+      document.getElementById('goalEaten').textContent = Math.round(totalCal);
+      document.getElementById('goalTarget').textContent = goal ? goal : 'set in Goal tab';
+      document.getElementById('goalActive').textContent = Math.round(totalBurn);
+      const left = goal ? Math.round(goal - totalCal) : '—';
+      document.getElementById('goalLeft').textContent = left;
+      const pct = goal ? Math.min(150, (totalCal / goal) * 100) : 0;
+      document.getElementById('goalPct').textContent = goal ? Math.round(pct) + '%' : '—';
+
+      const fill = document.getElementById('progressFill');
+      const track = document.getElementById('goalBarTrack');
+      const pctLabel = document.getElementById('goalBarPct');
+      fill.style.width = Math.min(100, pct) + '%';
+      fill.className = 'goal-bar-fill';
+      track.className = 'goal-bar-track';
+      if (pct >= 100) {
+        fill.classList.add('warn100');
+        track.classList.add('warn100-track');
+      } else if (pct >= 90) {
+        fill.classList.add('warn90');
+        track.classList.add('warn90-track');
+      } else if (pct >= 80) {
+        fill.classList.add('warn80');
+        track.classList.add('warn80-track');
+      }
+      pctLabel.textContent = Math.round(pct) + '%';
+      checkAlerts(totalCal, goal);
+    }
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      const dates = Object.keys(allData).sort().reverse();
+      if (!dates.length) {
+        list.innerHTML = `<div class="empty" style="padding:16px"><p>No history yet</p></div>`;
+        return;
+      }
+      list.innerHTML = dates.map(date => {
+        const cal = dayTotalCal(date);
+        const burn = getTotalBurn(date);
+        return `<div class="history-row ${date===currentDate?'active':''}" data-date="${date}">
+          <div class="history-date">${formatDateLabel(date)} <span style="color:var(--muted);font-weight:400;font-size:0.75rem">${date}</span></div>
+          <div class="history-stats"><span>${Math.round(cal)}</span> kcal · burn ${Math.round(burn)}</div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('.history-row').forEach(row => {
+        row.addEventListener('click', () => {
+          currentDate = row.dataset.date;
+          lastOverflowTier = 0;
+          document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab==='track'));
+          document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id==='panel-track'));
+          render();
+        });
+      });
+    }
+    function renderCharts() {
+      const colors = ['#22c55e','#3b82f6','#f59e0b','#a855f7','#ef4444','#14b8a6','#f97316','#ec4899','#84cc16','#06b6d4'];
+      const entries = getDayEntries();
+      const todayEl = document.getElementById('histToday');
+      const emptyEl = document.getElementById('histTodayEmpty');
+      if (!entries.length) {
+        todayEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+      } else {
+        emptyEl.style.display = 'none';
+        const max = Math.max(...entries.map(e => e.cal), 1);
+        todayEl.innerHTML = entries.map((e, i) => {
+          const h = Math.max(8, (e.cal / max) * 110);
+          return `<div class="hist-col">
+            <div class="hist-val">${Math.round(e.cal)}</div>
+            <div class="hist-bar" style="height:${h}px;background:${colors[i % colors.length]}"></div>
+            <div class="hist-label">${escapeHtml(e.name.split(' ')[0])}</div>
+          </div>`;
+        }).join('');
+      }
+      const weekEl = document.getElementById('histWeek');
+      const days = [];
+      for (let i = 6; i >= 0; i--) days.push(shiftDate(todayISO(), -i));
+      const maxW = Math.max(
+        ...days.map(d => dayTotalCal(d)),
+        ...days.map(d => getTotalBurn(d)),
+        profile.dailyGoal || 1, 1
+      );
+      weekEl.innerHTML = days.map((d, i) => {
+        const cal = dayTotalCal(d);
+        const burn = getTotalBurn(d);
+        const hFood = Math.max(4, (cal / maxW) * 110);
+        const hBurn = Math.max(4, (burn / maxW) * 110);
+        const label = new Date(d + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short' });
+        const isToday = d === todayISO();
+        return `<div class="hist-col" style="flex-direction:row;align-items:flex-end;gap:2px;justify-content:center">
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div class="hist-val">${cal ? Math.round(cal) : ''}</div>
+            <div class="hist-bar" style="height:${hFood}px;background:${isToday ? '#22c55e' : colors[i % colors.length]}"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div class="hist-val" style="color:#60a5fa">${burn ? Math.round(burn) : ''}</div>
+            <div class="hist-bar" style="height:${hBurn}px;background:#3b82f6"></div>
+          </div>
+          <div style="position:absolute;bottom:-16px;left:0;right:0;text-align:center" class="hist-label">${label}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderBurnBar() {
+      const totalBurn = getTotalBurn(currentDate);
+      const target = profile.exerciseTarget || 200;
+      const pct = target > 0 ? totalBurn / target : 0;
+
+      const fill = document.getElementById('burnBarFill');
+      const track = document.getElementById('burnBarTrack');
+      const pctLabel = document.getElementById('burnBarPct');
+      const overflow = document.getElementById('burnBarOverflow');
+
+      const visualPct = Math.min(1, pct);
+      fill.style.width = (visualPct * 100) + '%';
+      fill.className = 'burn-bar-fill';
+      track.className = 'burn-bar-track';
+      pctLabel.className = 'burn-bar-pct';
+
+      if (pct >= 1.01) {
+        fill.classList.add('over100');
+        track.classList.add('over100-track');
+        pctLabel.classList.add('over100-pct');
+        const overflowKcal = Math.round(totalBurn - target);
+        overflow.style.display = 'block';
+        overflow.textContent = '+' + overflowKcal + ' kcal';
+        pctLabel.textContent = Math.round(pct * 100) + '%';
+      } else {
+        overflow.style.display = 'none';
+        pctLabel.textContent = Math.round(pct * 100) + '%';
+        if (pct >= 1) {
+          fill.classList.add('complete');
+        }
+      }
+
+      if (pct >= 1 && lastOverflowTier < 1) {
+        lastOverflowTier = 1;
+        triumphChime();
+        showToast('🎉 Target reached! +' + Math.round(totalBurn - target) + ' kcal', 'triumph');
+      } else if (pct >= 1.25 && lastOverflowTier < 2) {
+        lastOverflowTier = 2;
+        triumphChime();
+        showToast('🔥 Amazing! 125% of target!', 'triumph');
+      } else if (pct >= 1.5 && lastOverflowTier < 3) {
+        lastOverflowTier = 3;
+        triumphChime();
+        showToast('⭐ Superb! 150% of target!', 'triumph');
+      } else if (pct >= 2 && lastOverflowTier < 4) {
+        lastOverflowTier = 4;
+        triumphChime();
+        showToast('👑 Legendary! 200% of target!', 'triumph');
+      }
+
+      document.getElementById('burnBarValue').textContent = Math.round(totalBurn) + ' kcal';
+      document.getElementById('burnBarTarget').textContent = target;
+      document.getElementById('summaryTimer').textContent = Math.round(getTimerBurn(currentDate));
+      document.getElementById('summaryManual').textContent = Math.round(getManualActive(currentDate));
+      document.getElementById('summaryTotal').textContent = Math.round(totalBurn);
+      document.getElementById('exerciseTarget').textContent = target;
+      document.getElementById('manualCurrentDisplay').textContent = Math.round(getManualActive(currentDate));
+    }
+
+    function renderExerciseList() {
+      const list = document.getElementById('exerciseList');
+      const weight = profile.weight || 70;
+      const sorted = EXERCISES.slice().sort((a, b) => b.met - a.met);
+      const target = profile.exerciseTarget || 200;
+      list.innerHTML = sorted.map((ex, i) => {
+        const loggedKcal = getExerciseBurnByName(currentDate, ex.name);
+        const loggedMin = getExerciseMinutesByName(currentDate, ex.name);
+        const pctOfTarget = target > 0 ? Math.min(100, (loggedKcal / target) * 100) : 0;
+        const kcal30 = calcExerciseKcal(ex.met, 30, weight);
+        const isSelected = selectedIndex === i;
+        const timerText = isSelected && timerSeconds > 0
+          ? String(Math.floor(timerSeconds/60)).padStart(2,'0') + ':' + String(timerSeconds%60).padStart(2,'0')
+          : '';
+
+        let tierClass = '';
+        if (pctOfTarget >= 100) tierClass = 'tier-max';
+        else if (pctOfTarget >= 50) tierClass = 'tier-high';
+        else if (pctOfTarget >= 20) tierClass = 'tier-mid';
+        else if (pctOfTarget >= 1) tierClass = 'tier-low';
+
+        return `<div class="exercise-item ${isSelected ? 'selected' : ''}" data-index="${i}">
+          <div class="exercise-fill ${tierClass}" style="width:${pctOfTarget}%"></div>
+          <div class="exercise-name">${ex.name}<br>
+            <span style="font-size:0.6rem;color:var(--muted)">
+              ${loggedKcal > 0 ? loggedKcal.toFixed(1) + ' kcal logged' : ex.desc}
+            </span>
+          </div>
+          <div class="exercise-met">MET ${ex.met}<br>
+            <span style="font-size:0.55rem;color:var(--muted)">
+              ${pctOfTarget > 0 ? Math.round(pctOfTarget) + '% of target' : Math.round((kcal30/target)*100) + '% per 30m'}
+            </span>
+          </div>
+          <div class="exercise-kcal">
+            ${loggedKcal > 0 ? loggedKcal.toFixed(0) : kcal30}
+            <br><span style="font-size:0.55rem;color:var(--muted)">${loggedKcal > 0 ? (loggedMin.toFixed(1) + ' min') : 'kcal/30m'}</span>
+          </div>
+          <div class="exercise-timer ${isSelected && timerRunning ? 'running' : ''}">
+            ${timerText || `<button class="exercise-add" data-ex="${i}">▶</button>`}
+          </div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('.exercise-add').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.ex);
+          selectExercise(sorted[idx], idx);
+        });
+      });
+    }
+
+    function selectExercise(ex, idx) {
+      if (selectedExercise && timerSeconds > 0) {
+        logCurrentExercise();
+      }
+      selectedExercise = ex;
+      selectedIndex = idx;
+      timerSeconds = 0;
+      updateTimerDisplay();
+      const banner = document.getElementById('selectedBanner');
+      banner.classList.add('show');
+      document.getElementById('sbName').textContent = '🏃 ' + ex.name;
+      document.getElementById('sbMeta').textContent = `MET ${ex.met} · ${ex.desc}`;
+      renderExerciseList();
+      startTimer();
+    }
+
+    function logCurrentExercise() {
+      if (!selectedExercise || timerSeconds < 5) return;
+      const minutes = timerSeconds / 60;
+      const kcal = calcExerciseKcal(selectedExercise.met, minutes, profile.weight || 70);
+      if (kcal > 0) {
+        if (!exerciseLog[currentDate]) exerciseLog[currentDate] = [];
+        exerciseLog[currentDate].push({
+          id: Date.now(),
+          name: selectedExercise.name,
+          met: selectedExercise.met,
+          minutes: +minutes.toFixed(1),
+          kcal: kcal
+        });
+        saveExerciseLog();
+        showToast(`${selectedExercise.name}: ${kcal} kcal logged`);
+      }
+    }
+
+    function startTimer() {
+      if (timerRunning) return;
+      timerRunning = true;
+      document.getElementById('timerDisplay').classList.add('running');
+      document.getElementById('startTimer').textContent = '⏸ Pause';
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        updateTimerDisplay();
+        if (selectedIndex >= 0) {
+          const items = document.querySelectorAll('.exercise-item');
+          const item = items[selectedIndex];
+          if (item) {
+            const timerCell = item.querySelector('.exercise-timer');
+            if (timerCell) {
+              timerCell.textContent = String(Math.floor(timerSeconds/60)).padStart(2,'0') + ':' + String(timerSeconds%60).padStart(2,'0');
+            }
+          }
+        }
+      }, 1000);
+    }
+    function pauseTimer() {
+      timerRunning = false;
+      document.getElementById('timerDisplay').classList.remove('running');
+      document.getElementById('startTimer').textContent = '▶ Start';
+      if (timerInterval) clearInterval(timerInterval);
+    }
+    function resetTimer() {
+      if (selectedExercise && timerSeconds > 0) {
+        logCurrentExercise();
+      }
+      pauseTimer();
+      timerSeconds = 0;
+      updateTimerDisplay();
+      selectedExercise = null;
+      selectedIndex = -1;
+      document.getElementById('selectedBanner').classList.remove('show');
+      renderBurnBar();
+      renderExerciseList();
+      render();
+    }
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent =
+        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function render() {
+      updateDateUI();
+      renderLog();
+      renderHistory();
+      renderCharts();
+      renderBurnBar();
+      renderExerciseList();
+    }
+
+    function collectEntries(fromISO, toISO) {
+      const rows = [];
+      Object.keys(allData).sort().forEach(d => {
+        if (d >= fromISO && d <= toISO) {
+          (allData[d] || []).forEach(e => rows.push({ date: d, ...e }));
+        }
+      });
+      return rows;
+    }
+    function downloadCSV(rows, filename) {
+      if (!rows.length) { showToast('Nothing to export'); return; }
+      const header = 'Date,Food,Weight(g),Calories,Sodium(mg),Cholesterol(mg)\n';
+      const body = rows.map(e =>
+        `${e.date},"${e.name.replace(/"/g,'""')}",${e.grams},${e.cal},${e.na},${e.chol}`
+      ).join('\n');
+      const blob = new Blob([header + body], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('CSV downloaded');
+      closeExportModal();
+    }
+    function openExportModal() {
+      document.getElementById('expDayLabel').textContent = formatDateFull(currentDate);
+      const m = new Date(currentDate + 'T12:00:00');
+      document.getElementById('expMonthLabel').textContent = m.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      document.getElementById('exportFrom').value = currentDate;
+      document.getElementById('exportTo').value = currentDate;
+      document.getElementById('exportModal').classList.add('show');
+    }
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('show');
+    }
+    function saveDaySnapshot() {
+      const entries = getDayEntries();
+      const totalCal = entries.reduce((s, e) => s + e.cal, 0);
+      const totalNa = entries.reduce((s, e) => s + e.na, 0);
+      const totalChol = entries.reduce((s, e) => s + e.chol, 0);
+      const burn = getTotalBurn(currentDate);
+      const goal = effectiveGoal();
+      let text = `CALORIE TRACKER — DAY SNAPSHOT\n`;
+      text += `Date: ${formatDateFull(currentDate)} (${currentDate})\n`;
+      text += `================================\n`;
+      text += `Total Calories eaten: ${Math.round(totalCal)} kcal\n`;
+      text += `Sodium: ${Math.round(totalNa)} mg\n`;
+      text += `Cholesterol: ${totalChol.toFixed(1)} mg\n`;
+      text += `Total Burn (timer + manual): ${Math.round(burn)} kcal\n`;
+      if (goal) {
+        text += `Daily Goal: ${goal} kcal\n`;
+        text += `Progress: ${Math.round((totalCal/goal)*100)}%\n`;
+        text += `Remaining: ${Math.round(goal - totalCal)} kcal\n`;
+      }
+      text += `================================\n`;
+      text += `FOOD LOG:\n`;
+      if (!entries.length) text += '(no items)\n';
+      else entries.forEach((e, i) => {
+        text += `${i+1}. ${e.name} — ${e.grams}g → ${e.cal} kcal | Na ${e.na} | Chol ${e.chol}\n`;
+      });
+      text += `================================\n`;
+      text += `Saved: ${new Date().toLocaleString()}\n`;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `day_snapshot_${currentDate}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('Day snapshot saved');
+    }
+    function timestampName() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    }
+    function saveAsFullBackup() {
+      try {
+        var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'calorie-tracker_' + timestampName() + '.html';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 400);
+        showToast('HTML copy saved ✓');
+      } catch (err) {
+        showToast('Save failed — try Safari');
+        console.error(err);
+      }
+    }
+    function restoreFromBackup(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const backup = JSON.parse(reader.result);
+          if (backup.allData) allData = backup.allData;
+          if (backup.profile) profile = Object.assign(profile, backup.profile);
+          if (backup.activeByDay) activeByDay = backup.activeByDay;
+          if (backup.alertsFired) alertsFired = backup.alertsFired;
+          if (backup.exerciseLog) exerciseLog = backup.exerciseLog;
+          saveData(); saveProfile(); saveActive(); saveAlerts(); saveExerciseLog();
+          fillProfileForm();
+          render();
+          showToast('Backup restored');
+        } catch (e) {
+          showToast('Invalid backup file');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'chart') renderCharts();
+        if (tab.dataset.tab === 'goal') fillProfileForm();
+        if (tab.dataset.tab === 'move') { renderBurnBar(); renderExerciseList(); }
+      });
+    });
+
+    document.getElementById('prevDay').addEventListener('click', () => { currentDate = shiftDate(currentDate, -1); lastOverflowTier = 0; render(); });
+    document.getElementById('nextDay').addEventListener('click', () => { currentDate = shiftDate(currentDate, 1); lastOverflowTier = 0; render(); });
+    document.getElementById('datePicker').addEventListener('change', e => {
+      if (e.target.value) { currentDate = e.target.value; lastOverflowTier = 0; render(); }
+    });
+    document.getElementById('foodSearch').addEventListener('input', e => { populateSelect(e.target.value); updatePreview(); });
+    document.getElementById('foodSelect').addEventListener('change', updatePreview);
+    document.getElementById('weight').addEventListener('input', updatePreview);
+    document.getElementById('quickWeight').addEventListener('change', e => {
+      if (e.target.value) { document.getElementById('weight').value = e.target.value; updatePreview(); }
+    });
+    document.getElementById('addBtn').addEventListener('click', () => {
+      ensureAudio();
+      const idx = document.getElementById('foodSelect').value;
+      const grams = parseFloat(document.getElementById('weight').value);
+      if (idx === '' || isNaN(grams) || grams <= 0) { showToast('Select food + weight'); return; }
+      const food = FOODS[idx];
+      const r = calc(food, grams);
+      const entries = getDayEntries();
+      entries.push({ id: Date.now(), name: food.name, grams, cal: r.cal, na: r.na, chol: r.chol });
+      setDayEntries(entries);
+      document.getElementById('weight').value = '';
+      document.getElementById('quickWeight').value = '';
+      document.getElementById('foodSearch').value = '';
+      document.getElementById('preview').classList.remove('show');
+      populateSelect();
+      render();
+    });
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (!getDayEntries().length) return;
+      if (confirm('Clear all food for ' + formatDateLabel(currentDate) + '?')) {
+        setDayEntries([]);
+        if (alertsFired[currentDate]) { delete alertsFired[currentDate]; saveAlerts(); }
+        render();
+        showToast('Day cleared');
+      }
+    });
+    document.getElementById('exportBtn').addEventListener('click', openExportModal);
+    document.getElementById('closeModal').addEventListener('click', closeExportModal);
+    document.getElementById('exportModal').addEventListener('click', e => {
+      if (e.target.id === 'exportModal') closeExportModal();
+    });
+    document.getElementById('saveDayBtn').addEventListener('click', saveDaySnapshot);
+
+    document.querySelectorAll('.export-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const range = btn.dataset.range;
+        let from, to, name;
+        if (range === 'day') { from = to = currentDate; name = `calories_${currentDate}.csv`; }
+        else if (range === 'week') { to = currentDate; from = shiftDate(currentDate, -6); name = `calories_week_${from}_to_${to}.csv`; }
+        else if (range === 'month') {
+          const d = new Date(currentDate + 'T12:00:00');
+          from = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
+          to = new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10);
+          name = `calories_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}.csv`;
+        } else {
+          const dates = Object.keys(allData).sort();
+          if (!dates.length) { showToast('Nothing to export'); return; }
+          from = dates[0]; to = dates[dates.length-1];
+          name = `calories_all_${from}_to_${to}.csv`;
+        }
+        downloadCSV(collectEntries(from, to), name);
+      });
+    });
+    document.getElementById('exportCustom').addEventListener('click', () => {
+      const from = document.getElementById('exportFrom').value;
+      const to = document.getElementById('exportTo').value;
+      if (!from || !to) { showToast('Pick both dates'); return; }
+      if (from > to) { showToast('From must be before To'); return; }
+      downloadCSV(collectEntries(from, to), `calories_${from}_to_${to}.csv`);
+    });
+
+    document.querySelectorAll('.sex-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        profile.sex = btn.dataset.sex;
+      });
+    });
+    document.getElementById('saveProfile').addEventListener('click', () => {
+      profile.age = parseFloat(document.getElementById('profAge').value) || 30;
+      profile.weight = parseFloat(document.getElementById('profWeight').value) || 70;
+      profile.height = parseFloat(document.getElementById('profHeight').value) || 170;
+      profile.activity = parseFloat(document.getElementById('profActivity').value) || 1.55;
+      profile.goalAdj = parseFloat(document.getElementById('profGoal').value) || 0;
+      profile.exerciseTarget = parseFloat(document.getElementById('profExerciseTarget').value) || 200;
+      const r = calcBMR();
+      saveProfile();
+      document.getElementById('bmrResult').style.display = 'block';
+      document.getElementById('bmrValue').textContent = r.goal + ' kcal';
+      document.getElementById('bmrDetail').textContent =
+        `BMR ${r.bmr} × activity = TDEE ${r.tdee}` + (profile.goalAdj ? ` (${profile.goalAdj > 0 ? '+' : ''}${profile.goalAdj} adj)` : '');
+      showToast('Goal saved: ' + r.goal + ' kcal');
+      render();
+    });
+
+    document.getElementById('addManualActive').addEventListener('click', () => {
+      const v = parseFloat(document.getElementById('manualActiveInput').value) || 0;
+      if (v <= 0) { showToast('Enter a positive value'); return; }
+      activeByDay[currentDate] = (Number(activeByDay[currentDate]) || 0) + v;
+      saveActive();
+      document.getElementById('manualActiveInput').value = '';
+      showToast(`Added ${v} kcal to total burn`);
+      render();
+    });
+
+    document.getElementById('resetManualActive').addEventListener('click', () => {
+      const current = getManualActive(currentDate);
+      if (current <= 0) { showToast('Nothing to reset'); return; }
+      if (confirm(`Reset manual active kcal for today? (currently ${Math.round(current)} kcal)`)) {
+        delete activeByDay[currentDate];
+        saveActive();
+        document.getElementById('manualActiveInput').value = '';
+        showToast('Manual active reset');
+        render();
+      }
+    });
+
+    document.getElementById('startTimer').addEventListener('click', () => {
+      if (timerRunning) pauseTimer(); else startTimer();
+    });
+    document.getElementById('resetTimer').addEventListener('click', resetTimer);
+
+    document.getElementById('saveAsBtn').addEventListener('click', saveAsFullBackup);
+    document.getElementById('restoreFile').addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) restoreFromBackup(f);
+      e.target.value = '';
+    });
+
+    load();
+    populateSelect();
+    fillProfileForm();
+    render();
+  </script>
+</body>
+</html>
